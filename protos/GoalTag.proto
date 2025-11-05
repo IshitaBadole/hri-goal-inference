@@ -1,0 +1,64 @@
+#VRML_SIM R2025a utf8
+# Simple goal marker (no template engine). All fields are bound with IS.
+
+PROTO GoalTag [
+  # Pose per instance
+  field SFVec3f   translation  0 0 0
+  field SFRotation rotation     0 1 0 0
+
+  # Semantic fields
+  field SFString  name     "goal"
+  field SFString  group    "default"   # stored in Solid.model so your controller can read it
+  field SFFloat   weight   1.0
+  field SFFloat   radius   0.25
+  field SFFloat   dwellMin 2.0
+  field SFFloat   dwellMax 8.0
+
+  # Visualization
+  field SFColor   color    1 0 0
+  field SFFloat   alpha    0.5        # 0.0 = opaque, 1.0 = invisible
+] {
+  Solid {
+    # Pose & identity
+    translation IS translation
+    rotation    IS rotation
+    name        IS name
+    model       IS group     # bind the group string here so it's “used” and easy to read later
+
+    # Visible disc on the floor
+    children [
+      Shape {
+        appearance PBRAppearance {
+          baseColor IS color
+          metalness 0
+          roughness 1
+          transparency IS alpha
+        }
+        geometry Cylinder {
+          height 0.02
+          radius IS radius
+        }
+      }
+
+      # --- Invisible dummy shapes to "use" float fields so Webots doesn't warn ---
+      # These have near-zero radius and full transparency, so they don't show up.
+      Shape {
+        appearance PBRAppearance { transparency 1 }
+        geometry Cylinder { height IS weight radius 0.0001 }
+      }
+      Shape {
+        appearance PBRAppearance { transparency 1 }
+        geometry Cylinder { height IS dwellMin radius 0.0001 }
+      }
+      Shape {
+        appearance PBRAppearance { transparency 1 }
+        geometry Cylinder { height IS dwellMax radius 0.0001 }
+      }
+    ]
+
+    # Static footprint for picking/raycast; no physics dynamics
+    boundingObject Cylinder { height 0.02 radius IS radius }
+    physics NULL
+    locked TRUE
+  }
+}
