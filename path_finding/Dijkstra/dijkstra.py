@@ -1,23 +1,3 @@
-"""
-
-Grid-based Dijkstra Path Planning Implementation
-
-This module implements Dijkstra's algorithm for path planning on a 2D grid with obstacles.
-The implementation allows for 8-directional movement (horizontal, vertical, and diagonal)
-and handles obstacle avoidance.
-
-COEN 5830 HW2: Path Planning
-
-Instructions:
-------------
-1. Add your name below
-2. Complete all sections marked with "Student Task:" comments/docstrings
-3. The main algorithm steps are in the `planning` method
-4. Test your implementation with different obstacle configurations in main()
-
-Full Name: Siddharth De
-"""
-
 import math
 import time
 from typing import Dict, List, Optional, Tuple
@@ -28,8 +8,6 @@ show_animation = True
 
 
 class Dijkstra:
-    """Dijkstra's algorithm implementation for grid-based path planning."""
-
     def __init__(
         self,
         obstacle_x: List[float],
@@ -110,23 +88,6 @@ class Dijkstra:
 
         Returns:
             rx, ry: Lists of x and y coordinates of the path from goal to start
-
-        -------------------------------------------------------
-        Student Task: Complete Dijkstra's algorithm implementation:
-        1. Initialize start and goal nodes (already done for you)
-        2. While open_set is not empty:
-           a. Find node with minimum cost in open_set (use node.cost)
-           b. If node is goal, update goal_node and break
-           c. Remove current node from open_set and add to closed_set
-           d. For each possible motion in self.motion:
-              - Calculate new node position and cost
-              - Skip if in closed_set or out of bounds
-              - Add to open_set if new, or update if found better path
-
-        Key Differences from A*:
-        - No heuristic function needed
-        - Simply use the cost from start (g-cost) to determine next node
-        - Expands in all directions equally until goal is found
         """
 
 
@@ -147,8 +108,6 @@ class Dijkstra:
         open_set[self.calc_grid_index(start_node)] = start_node
 
         while True:
-            # YOUR CODE GOES HERE
-
             # While open_set is not empty
             if not len(open_set):
                 break
@@ -173,7 +132,6 @@ class Dijkstra:
                 if len(closed_set.keys()) % 10 == 0:
                     plt.pause(0.001)
 
-            # YOUR CODE GOES HERE
             # 1. Check if current node is goal node:
             #    - If yes: Update goal_node.parent_index and cost, then break
 
@@ -302,17 +260,7 @@ class Dijkstra:
         Returns:
             bool: True if the node is valid (within bounds and collision-free),
                  False otherwise
-
-        Student Task:
-        ------------
-        1. Check if node coordinates (node.x, node.y) are within grid bounds:
-           - x should be between 0 and self.x_width
-           - y should be between 0 and self.y_width
-        2. If within bounds, check self.obstacle_map to see if the node
-           position collides with an obstacle
-        3. Return False if either check fails, True if both pass
         """
-        # YOUR CODE GOES HERE
         # Verify if the node is within bounds and isn't colliding with an obstacle
         # Return False if node is invalid. Otherwise, return True
 
@@ -346,23 +294,7 @@ class Dijkstra:
               * self.max_x, self.max_y: Maximum x,y coordinates of the grid
               * self.x_width, self.y_width: Width and height of the grid
               * self.obstacle_map: 2D grid marking obstacle positions
-
-        Student Task:
-        ------------
-        1. Find grid boundaries:
-           - Calculate min/max x,y from obstacle coordinates
-           - Convert to grid coordinates using self.resolution
-           - Store in self.min_x, self.min_y, self.max_x, self.max_y
-
-        2. Calculate grid dimensions:
-           - Use min/max values to compute grid width and height
-           - Store in self.x_width and self.y_width
-
-        3. After the obstacle_map is initialized (DO NOT MODIFY THE INITIALIZATION):
-           - Convert each obstacle coordinate to grid coordinates
-           - Mark corresponding cells in obstacle_map as True
         """
-        # YOUR CODE GOES HERE
         # Find the minimum and maximum bounds for x and y
         # Use the bounds to obtain the width along x and y axes and store them in self.x_width and self.y_width respectively
         self.min_x = round(min(obstacle_x) * self.resolution)
@@ -373,7 +305,6 @@ class Dijkstra:
         self.x_width = (self.max_x - self.min_x) 
         self.y_width = (self.max_y - self.min_y) 
         
-        # DO NOT ALTER THE NEXT TWO LINES.
         self.obstacle_map = [
             [False for _ in range(self.y_width)] for _ in range(self.x_width)
         ]
@@ -522,7 +453,3 @@ def main_Q2():
 
 if __name__ == "__main__":
     main()
-    # main_Q2()
-
-
-# For Task 2 of A*, uncomment main_Q2() and comment main().Then run to get execution time of Dijkstra

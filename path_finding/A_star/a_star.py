@@ -1,22 +1,3 @@
-"""
-A* Grid Path Planning Implementation
-
-This module implements the A* path planning algorithm on a 2D grid with obstacles.
-The implementation allows for diagonal movements and uses a Euclidean distance
-heuristic to guide the search.
-
-COEN 5830 HW2: Path Planning
-
-Instructions:
-------------
-1. Add your name below
-2. Complete all sections marked with "Student Task:" comments/docstrings
-3. The main algorithm steps are in the `planning` method
-4. Test your implementation with different obstacle configurations in main()
-
-Full Name: Siddharth De
-"""
-
 import math
 import time
 from typing import Dict, List, Optional, Tuple
@@ -105,20 +86,6 @@ class AStarPlanner:
 
         Returns:
             rx, ry: Lists of x and y coordinates of the path from goal to start
-
-        -------------------------------------------------------
-        Student Task: Complete the A* algorithm implementation:
-        1. Initialize start and goal nodes
-        2. Maintain open_set for nodes to be expanded
-        3. Maintain closed_set for already expanded nodes
-        4. While open_set is not empty:
-           a. Find node with minimum f_cost (g_cost + heuristic)
-           b. If node is goal, backtrack to find path
-           c. Expand node's neighbors and update costs
-
-
-        Please refer to the A* algorithm pseudocode in the course notes
-        for details on how the algorithm works.
         """
         start_node = self.Node(
             self.calc_xy_index(start_x, self.min_x),
@@ -138,7 +105,6 @@ class AStarPlanner:
 
         while True:
             current = None
-            # YOUR CODE GOES HERE
             # Check if open_set is empty. If so, break out of the while loop
             if not len(open_set):
                 break
@@ -148,7 +114,6 @@ class AStarPlanner:
 
             # Find the Node in open_set with least cost and assign it to current
             current = open_set[current_idx]
-            # DO NOT ALTER THE FOLLOWING LINES
             if show_animation:
                 plt.plot(
                     self.calc_grid_position(current.x, self.min_x),
@@ -161,7 +126,6 @@ class AStarPlanner:
                 )
                 if len(closed_set.keys()) % 10 == 0:
                     plt.pause(0.001)
-            # YOUR CODE GOES HERE
             # Check if current Node is equal to the goal. If so, assign goal_node.parent_index and goal_node.cost to the appropriate values and break out of the while loop
             if current.x == goal_node.x and current.y == goal_node.y:
                 goal_node.parent_index = current.parent_index
@@ -303,17 +267,7 @@ class AStarPlanner:
         Returns:
             bool: True if the node is valid (within bounds and collision-free),
                  False otherwise
-
-        Student Task:
-        ------------
-        1. Check if node coordinates (node.x, node.y) are within grid bounds:
-           - x should be between 0 and self.x_width
-           - y should be between 0 and self.y_width
-        2. If within bounds, check self.obstacle_map to see if the node
-           position collides with an obstacle
-        3. Return False if either check fails, True if both pass
         """
-        # YOUR CODE GOES HERE
         # Verify if the node is within bounds and isn't colliding with an obstacle
         # Return False if node is invalid. Otherwise, return True
         if node.x >= self.x_width or node.x < 0:
@@ -347,21 +301,6 @@ class AStarPlanner:
               * self.max_x, self.max_y: Maximum x,y coordinates of the grid
               * self.x_width, self.y_width: Width and height of the grid
               * self.obstacle_map: 2D grid marking obstacle positions
-
-        Student Task:
-        ------------
-        1. Find grid boundaries:
-           - Calculate min/max x,y from obstacle coordinates
-           - Convert to grid coordinates using self.resolution
-           - Store in self.min_x, self.min_y, self.max_x, self.max_y
-
-        2. Calculate grid dimensions:
-           - Use min/max values to compute grid width and height
-           - Store in self.x_width and self.y_width
-
-        3. After the obstacle_map is initialized (DO NOT MODIFY THE INITIALIZATION):
-           - Convert each obstacle coordinate to grid coordinates
-           - Mark corresponding cells in obstacle_map as True
         """
         # Find the minimum and maximum bounds for x and y
         # Use the bounds to obtain the width along x and y axes and store them in self.x_width and self.y_width respectively
@@ -373,7 +312,6 @@ class AStarPlanner:
         self.x_width = (self.max_x - self.min_x) 
         self.y_width = (self.max_y - self.min_y) 
 
-        # DO NOT ALTER THE NEXT TWO LINES.
         self.obstacle_map = [
             [False for _ in range(self.y_width)] for _ in range(self.x_width)
         ]
@@ -520,15 +458,3 @@ def main_Q2():
 
 if __name__ == "__main__":
     main()
-    # main_Q2()
-
-# Task 2:
-# For Task 2 of A*, uncomment main_Q2() and comment main().Then run to get execution time of A*
-# Since we cannot change the heuristic function, one way to make sure that Dijkstra and A* have same
-# performance is to make both the algos explore a hallway like maze with no extra branching path
-
-
-# Task 3:
-# It is possible for A* to be worse than Dijkstra in the following cases:
-# 1. Poorly chosen heuristic function which overestimates the cost rather than underestimate it
-# 2. The calculation cost heuristic func is expensive, causing it to add up to total time for navigation and being outperformed by Dijsktra

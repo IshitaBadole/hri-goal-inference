@@ -1,23 +1,3 @@
-"""
-Rapidly Exploring Random Tree (RRT) Path Planning Implementation
-
-This module implements the RRT algorithm for path planning, which works by:
-1. Incrementally building a tree by sampling random points
-2. Connecting new points to the nearest node in the tree
-3. Checking for collisions and maintaining feasible paths
-
-COEN 5830 HW2: Path Planning
-
-Instructions:
-------------
-1. Add your name below
-2. Complete all sections marked with "Student Task:" comments/docstrings
-3. The main algorithm steps are in the `planning` and `steer` methods
-4. Test your implementation with different obstacle configurations
-
-Full Name: Siddharth De 
-"""
-
 import math
 import random
 from typing import List, Optional, Tuple, Union
@@ -142,13 +122,6 @@ class RRT:
         - min_rand/max_rand: Bounds of the sampling space
         - For non-holonomic planning, include random heading angle
 
-        Student Task [DONE]:
-        ------------
-        1. With probability goal_sample_rate/100, return the goal node
-        2. Otherwise, sample random position within min_rand/max_rand bounds
-        3. For non-holonomic planning, sample random heading in [-pi, pi]
-        4. Return new Node with sampled values
-
         Returns:
             Node: Randomly sampled node
         """
@@ -215,25 +188,12 @@ class RRT:
         Returns:
             path: List of points [(x1,y1), (x2,y2),...] or None if no path found
 
-        Student Task [DONE]:
-        ------------
-        1. Initialize the tree with the start node (add to node_list)
-        2. For max_iter iterations:
-           a. Sample random point using get_random_node()
-           b. Find nearest node in tree
-           c. Attempt to steer towards sampled point
-           d. If valid new node:
-              - Add to tree
-              - Check if goal is reachable
-              - If goal reached, extract and return path
-        3. Return None if no path found
         """
         self.node_list = [self.start]
         self.nonholonomic = nonholonomic
 
         rnd_node = None
         for i in range(self.max_iter):
-            # YOUR CODE GOES HERE
             # Use get_random_node() to sample a random configuration
 
             rnd_node = self.get_random_node()
@@ -253,7 +213,6 @@ class RRT:
             else:
                 continue
 
-            # DO NOT ALTER THE NEXT 2 LINES
             if animation and i % 5 == 0:
                 self.draw_graph(rnd_node)
             # YOUR CODE GOES HERE
@@ -282,17 +241,6 @@ class RRT:
         Returns:
             new_node: New node after steering
 
-        Student Task [NOT DONE]:
-        ------------
-        1. Create new node at from_node location
-        2. Calculate distance and angle to to_node
-        3. If distance > extend_length:
-           - Scale movement to respect extend_length
-        4. Move towards to_node:
-           - Update position incrementally using path_resolution
-           - Store path points in new_node.path_x and new_node.path_y
-        5. Set parent relationship
-        6. Return new node
         """
         new_node = self.Node(from_node.x, from_node.y)
         distance, theta = self.calc_distance_and_angle(
@@ -301,7 +249,6 @@ class RRT:
 
         new_node.path_x = [new_node.x]
         new_node.path_y = [new_node.y]
-        # YOUR CODE GOES HERE
         # If extend_length is greater than the distance, then ensure the robot doesn't go beyong extend_length
         if distance > extend_length:
             distance = extend_length
@@ -329,7 +276,6 @@ class RRT:
             new_node, to_node
         )  # We want to check if the robot has reached to_node
         
-        # YOUR CODE GOES HERE
         # Check if the robot has reached to_node. If yes, add to_node coordinates to the path of new_node
         # Add from_node as parent of new_node
         if d <= self.robot_radius:
@@ -355,20 +301,12 @@ class RRT:
             distance: Euclidean distance between nodes
             theta: Angle in radians from from_node to to_node
 
-        Student Task [DONE]:
-        ------------
-        1. Calculate Euclidean distance between nodes
-        2. Calculate angle of line from from_node to to_node
-           relative to x-axis (use math.atan2)
-        3. Return distance and angle
         """
         distance = None
         theta = None
-        # YOUR CODE GOES HERE
         dx = to_node.x - from_node.x
         dy = to_node.y - from_node.y
-        # Write code to find the distance between from_node and to_node
-
+        
         distance = math.sqrt(dx**2 + dy**2) # The hypotenuse or the euclidean distance between the two nodes
         theta = math.atan2(dy, dx) # The slope of the hypotenuse
 
@@ -384,19 +322,9 @@ class RRT:
 
         Returns:
             nearest_node: Nearest node in the tree
-
-        Student Task [DONE]:
-        ------------
-        1. Initialize variables for tracking nearest node and minimum distance
-        2. Iterate through node_list
-        3. Calculate distance to each node
-        4. Update nearest node if current distance is smaller
-        5. Return the nearest node found
         """
         nearest_node = None
         min_distance = float("inf")
-        # YOUR CODE HERE
-
         # Iterate through the node_list and find the node with the min dist to the target node
         for next_node in self.node_list:
             dist, _ = self.calc_distance_and_angle(node, next_node)
@@ -419,14 +347,7 @@ class RRT:
         Returns:
             collision_free: True if node is collision-free, False otherwise
 
-        Student Task [DONE]:
-        ------------
-        1. For each obstacle:
-           - Calculate distance from node to obstacle center
-           - Check if distance is less than obstacle radius + robot_radius
-        2. Return True if no collisions, False otherwise
         """
-        # YOUR CODE GOES HERE
         # Iteratively go through the obstacle list and check if the robot body and obtacle intersect or not
         for x,y,radius in obstacle_list:
             obstacle_node = self.Node(x, y)
@@ -514,22 +435,9 @@ class RRT:
         Returns:
             new_node: New node after steering
 
-        Student Task [NOT DONE]:
-        ------------
-        1. Create new node at from_node location with heading
-        2. Calculate target angle to to_node
-        3. Determine steering angle (limited by max_steer)
-        4. Generate curved path points using interpolate_path:
-           - Account for forward-only motion
-           - Respect steering constraints
-           - Stay within extend_length
-        5. Check path for collisions
-        6. Update node path and parent relationship
-        7. Return new node
         """
         new_node = self.Node(from_node.x, from_node.y, from_node.yaw)
 
-        # YOUR CODE GOES HERE
         # Calculate target angle and steering angle
         _, target_theta = self.calc_distance_and_angle(new_node, to_node)
 
@@ -582,7 +490,6 @@ class RRT:
         
         new_node = best_node
 
-        # YOUR CODE GOES HERE
         # Check if the robot has reached to_node. If yes, add to_node coordinates to the path of new_node
         # Add from_node as parent of new_node
         if d <= self.robot_radius:
@@ -801,9 +708,3 @@ if __name__ == "__main__":
     main()  # Run standard RRT
     # main_nonholonomic()  # Run non-holonomic RRT. Comment this out to run standard RRT
     print("Program End")
-
-# Task 2:
-# When we change expand_dis to 0.1 from 3.0, the algorithms doesn't work. This is because the default path_resolution is 0.5
-# So when we try to discretize the projected dynamics with the path resolution, we get increments of 0 since path_resolution > expand_dis
-# Changing path_resolution < expand_dis 
-# Also, we would need to change max_iter since the path increments will be very small, needing more iterations to reach the goal
