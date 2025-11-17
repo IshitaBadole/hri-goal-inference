@@ -8,8 +8,8 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/project
 WorldInfo {
 }
 Viewpoint {
-  orientation -0.25 -0.25 0.93 1.8
-  position 6 6 5
+  orientation -1 0 0 1.5708
+  position 0 0 8
 }
 TexturedBackground {
 }
