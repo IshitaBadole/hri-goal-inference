@@ -68,6 +68,12 @@ class PedestrianRobotDriver:
 
             # Update rotation
             new_yaw = current_yaw + angular_vel * time_step
+            
+            # Normalize angle to prevent wrap-around issues
+            while new_yaw > math.pi:
+                new_yaw -= 2 * math.pi
+            while new_yaw < -math.pi:
+                new_yaw += 2 * math.pi
 
             # Apply new position and rotation to physics robot
             translation_field.setSFVec3f(new_pos)
