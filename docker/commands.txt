@@ -1,0 +1,29 @@
+# Build ROS image (only once)
+docker build -t ros2-humble-webots .
+
+docker run -it --name ros2-webots-dev \
+  -v $HOME/webots_shared:/root/shared \
+  -e WEBOTS_SHARED_FOLDER="$HOME/webots_shared:/root/shared" \
+  ros2-humble-webots
+
+# Clone repo in container
+git clone https://github.com/IshitaBadole/hri-goal-inference.git
+
+# All other times
+docker start ros2-webots-dev
+docker exec -it ros2-webots-dev bash
+
+
+# Terminal 1 container (To launch webots and world)
+cd hri-goal-inference/ros2_ws/src
+colcon build
+source /opt/ros/humble/setup.bash
+source install/local_setup.bash
+ros2 launch my_package robot_launch.py
+
+# Terminal 2 container (For Teleop)
+cd hri-goal-inference/ros2_ws/src
+colcon build
+source /opt/ros/humble/setup.bash
+source install/local_setup.bash
+ros2 run my_package teleop
