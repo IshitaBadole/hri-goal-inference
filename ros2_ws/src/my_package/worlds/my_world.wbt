@@ -16,6 +16,7 @@ TexturedBackground {
 TexturedBackgroundLight {
 }
 CircleArena {
+  radius 10
 }
 Solid {
   translation 2 0 0.5
