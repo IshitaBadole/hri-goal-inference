@@ -15,7 +15,7 @@ class PedestrianRobotDriver:
 
         self.__target_twist = Twist()
         self._was_moving = False  # Track movement state for logging
-        
+
         # Get reference to the visual Pedestrian node
         self.__pedestrian_visual = self.__robot.getFromDef("PEDESTRIAN_VIS")
         if self.__pedestrian_visual is None:
@@ -53,28 +53,31 @@ class PedestrianRobotDriver:
             # Extract current yaw angle (assuming rotation around Z-axis)
             current_yaw = current_rot[3]
 
-            # Update yaw with angular velocity
+            # Handle pure rotation vs movement with rotation
+            new_pos = list(current_pos)  # Start with current position
+
+            # Only calculate linear movement if there's linear velocity
+            if linear_vel != 0:
+                dx = linear_vel * math.cos(current_yaw) * time_step
+                dy = linear_vel * math.sin(current_yaw) * time_step
+                new_pos[0] += dx
+                new_pos[1] += dy
+
+            # Always maintain proper Z height (prevent falling due to gravity)
+            new_pos[2] = 0.72  # Fixed height
+
+            # Update rotation
             new_yaw = current_yaw + angular_vel * time_step
-
-            # Calculate new position based on linear velocity and current orientation
-            dx = linear_vel * math.cos(current_yaw) * time_step
-            dy = linear_vel * math.sin(current_yaw) * time_step
-
-            new_pos = [
-                current_pos[0] + dx,
-                current_pos[1] + dy,
-                current_pos[2],  # Keep Z constant
-            ]
 
             # Apply new position and rotation to physics robot
             translation_field.setSFVec3f(new_pos)
             rotation_field.setSFRotation([0, 0, 1, new_yaw])
-            
+
             # Sync visual Pedestrian position if available
             if self.__pedestrian_visual is not None:
                 vis_translation = self.__pedestrian_visual.getField("translation")
                 vis_rotation = self.__pedestrian_visual.getField("rotation")
-                
+
                 # Position visual pedestrian slightly higher than physics robot
                 vis_pos = [new_pos[0], new_pos[1], new_pos[2] + 0.55]  # +0.55m higher
                 vis_translation.setSFVec3f(vis_pos)
@@ -83,6 +86,14 @@ class PedestrianRobotDriver:
             print(f"Moving: Linear={linear_vel:.2f}, Angular={angular_vel:.2f}")
             print(f"Position: ({new_pos[0]:.2f}, {new_pos[1]:.2f}), Yaw: {new_yaw:.2f}")
         else:
+            # Even when not moving, maintain proper height to prevent falling
+            translation_field = self.__robot.getSelf().getField("translation")
+            current_pos = translation_field.getSFVec3f()
+            if current_pos[2] < 0.7:  # If robot has fallen below expected height
+                corrected_pos = [current_pos[0], current_pos[1], 0.72]
+                translation_field.setSFVec3f(corrected_pos)
+                print(f"Height corrected to 0.72m (was {current_pos[2]:.2f}m)")
+
             # Optional: print when stopped
             if hasattr(self, "_was_moving") and self._was_moving:
                 print("Stopped")

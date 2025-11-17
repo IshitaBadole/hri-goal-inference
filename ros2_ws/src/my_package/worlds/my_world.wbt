@@ -80,8 +80,8 @@ Robot {
     mass 70
     density -1
     damping Damping {
-      linear 0.5
-      angular 0.5
+      linear 0.9
+      angular 0.9
     }
   }
   controller "<extern>"
