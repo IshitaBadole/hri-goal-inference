@@ -1,60 +1,211 @@
-#VRML_SIM R2022b utf8
+#VRML_SIM R2022b utf8#VRML_SIM R2022b utf8#VRML_SIM R2022b utf8
+
+
 
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/projects/objects/backgrounds/protos/TexturedBackground.proto"
+
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/projects/objects/floors/protos/CircleArena.proto"
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/projects/objects/floors/protos/CircleArena.proto"EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/projects/objects/backgrounds/protos/TexturedBackground.proto"EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/projects/objects/backgrounds/protos/TexturedBackground.proto"
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/projects/objects/humans/protos/Pedestrian.proto"
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
 
 WorldInfo {
-}
+
+}EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/projects/objects/floors/protos/CircleArena.proto"EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/projects/objects/floors/protos/CircleArena.proto"
+
 Viewpoint {
-  orientation -0.33185733874619844 -0.09874274160469809 0.9381474178937331 3.686018050088086
-  position 1.700313773507203 1.0549607538959629 1.4846240848267684
-  follow "my_robot"
+
+  orientation -0.5 -0.5 0.7071 1.8EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/projects/objects/humans/protos/Pedestrian.proto"EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/projects/objects/humans/protos/Pedestrian.proto"
+
+  position 3 3 3
+
+  follow "pedestrian_robot"
+
 }
-TexturedBackground {
+
+TexturedBackground {WorldInfo {WorldInfo {
+
 }
-TexturedBackgroundLight {
+
+TexturedBackgroundLight {}}
+
 }
-CircleArena {
+
+CircleArena {Viewpoint {Viewpoint {
+
 }
-Robot {
+
+Solid {  orientation -0.33185733874619844 -0.09874274160469809 0.9381474178937331 3.686018050088086  orientation -0.33185733874619844 -0.09874274160469809 0.9381474178937331 3.686018050088086
+
+  translation 2 0 0.5
+
+  children [  position 1.700313773507203 1.0549607538959629 1.4846240848267684  position 1.700313773507203 1.0549607538959629 1.4846240848267684
+
+    Shape {
+
+      appearance PBRAppearance {  follow "pedestrian_robot"  follow "pedestrian_robot"
+
+        baseColor 0.8 0.2 0.2
+
+      }}}
+
+      geometry Box {
+
+        size 0.5 0.5 1TexturedBackground {TexturedBackground {
+
+      }
+
+    }}}
+
+  ]
+
+  name "obstacle1"TexturedBackgroundLight {TexturedBackgroundLight {
+
+  boundingObject Box {
+
+    size 0.5 0.5 1}}
+
+  }
+
+}CircleArena {CircleArena {
+
+Solid {
+
+  translation -1.5 1.5 0.3}}
+
   children [
-    HingeJoint {
-      jointParameters HingeJointParameters {
-        axis 0 1 0
-        anchor 0 0 0.025
+
+    Shape {Robot {Robot {
+
+      appearance PBRAppearance {
+
+        baseColor 0.2 0.8 0.2  translation 0 0 0.72  children [
+
       }
-      device [
-        RotationalMotor {
-          name "left wheel motor"
-        }
-      ]
-      endPoint Solid {
-        translation 0 0.045 0.025
-        children [
-          DEF WHEEL Transform {
-            rotation 1 0 0 1.5707996938995747
-            children [
-              Shape {
-                appearance PBRAppearance {
-                  baseColor 1 0 0
-                  roughness 1
-                  metalness 0
-                }
-                geometry Cylinder {
-                  height 0.01
-                  radius 0.025
-                }
-              }
-            ]
-          }
-        ]
-        name "left wheel"
-        boundingObject USE WHEEL
-        physics Physics {
-        }
+
+      geometry Cylinder {  rotation 0 0 1 0    HingeJoint {
+
+        height 0.6
+
+        radius 0.3  children [      jointParameters HingeJointParameters {
+
       }
-    }
+
+    }    Shape {        axis 0 1 0
+
+  ]
+
+  name "obstacle2"      appearance PBRAppearance {        anchor 0 0 0.025
+
+  boundingObject Cylinder {
+
+    height 0.6        baseColor 0 0.5 1      }
+
+    radius 0.3
+
+  }        transparency 0.8      device [
+
+}
+
+Robot {      }        RotationalMotor {
+
+  translation 0 0 0.72
+
+  rotation 0 0 1 0      geometry Capsule {          name "left wheel motor"
+
+  children [
+
+    Shape {        height 1.44        }
+
+      appearance PBRAppearance {
+
+        baseColor 0 0.5 1        radius 0.25      ]
+
+        transparency 0.8
+
+      }        subdivision 16      endPoint Solid {
+
+      geometry Capsule {
+
+        height 1.44      }        translation 0 0.045 0.025
+
+        radius 0.25
+
+        subdivision 16    }        children [
+
+      }
+
+    }  ]          DEF WHEEL Transform {
+
+  ]
+
+  name "pedestrian_robot"  name "pedestrian_robot"            rotation 1 0 0 1.5707996938995747
+
+  boundingObject Capsule {
+
+    height 1.44  boundingObject Capsule {            children [
+
+    radius 0.25
+
+    subdivision 16    height 1.44              Shape {
+
+  }
+
+  physics Physics {    radius 0.25                appearance PBRAppearance {
+
+    mass 70
+
+    density -1    subdivision 16                  baseColor 1 0 0
+
+    damping Damping {
+
+      linear 0.5  }                  roughness 1
+
+      angular 0.5
+
+    }  physics Physics {                  metalness 0
+
+  }
+
+  controller "<extern>"    mass 70                }
+
+  supervisor TRUE
+
+}    density -1                geometry Cylinder {
+
+Pedestrian {
+
+  translation 0 0 1.27    damping Damping {                  height 0.01
+
+  rotation 0 0 1 0
+
+  controller "<none>"      linear 0.5                  radius 0.025
+
+}
+      angular 0.5                }
+
+    }              }
+
+  }            ]
+
+  controller "<extern>"          }
+
+  supervisor TRUE        ]
+
+}        name "left wheel"
+
+Pedestrian {        boundingObject USE WHEEL
+
+  translation 0 0 1.27        physics Physics {
+
+  rotation 0 0 1 0        }
+
+  controller "<none>"      }
+
+}    }
     HingeJoint {
       jointParameters HingeJointParameters {
         axis 0 1 0

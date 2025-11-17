@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
-<robot name="My robot">
+<robot name="My pedestrian robot">
     <webots>
-        <plugin type="my_package.my_robot_driver.MyRobotDriver" />
+        <plugin type="my_package.pedestrian_robot_driver.PedestrianRobotDriver" />
     </webots>
 </robot>
