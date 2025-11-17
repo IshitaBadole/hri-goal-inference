@@ -61,7 +61,7 @@ Robot {
     Shape {
       appearance PBRAppearance {
         baseColor 0 0.5 1
-        transparency 0.8
+        transparency 0.3
       }
       geometry Capsule {
         height 1.44
@@ -87,7 +87,7 @@ Robot {
   controller "<extern>"
   supervisor TRUE
 }
-Pedestrian {
+DEF PEDESTRIAN_VIS Pedestrian {
   translation 0 0 1.27
   rotation 0 0 1 0
   controller "<none>"

@@ -15,6 +15,13 @@ class PedestrianRobotDriver:
 
         self.__target_twist = Twist()
         self._was_moving = False  # Track movement state for logging
+        
+        # Get reference to the visual Pedestrian node
+        self.__pedestrian_visual = self.__robot.getFromDef("PEDESTRIAN_VIS")
+        if self.__pedestrian_visual is None:
+            print("Warning: Could not find PEDESTRIAN_VIS node - visual will not sync")
+        else:
+            print("Found visual pedestrian - will sync position")
 
         rclpy.init(args=None)
         self.__node = rclpy.create_node("pedestrian_robot_driver")
@@ -59,9 +66,19 @@ class PedestrianRobotDriver:
                 current_pos[2],  # Keep Z constant
             ]
 
-            # Apply new position and rotation
+            # Apply new position and rotation to physics robot
             translation_field.setSFVec3f(new_pos)
             rotation_field.setSFRotation([0, 0, 1, new_yaw])
+            
+            # Sync visual Pedestrian position if available
+            if self.__pedestrian_visual is not None:
+                vis_translation = self.__pedestrian_visual.getField("translation")
+                vis_rotation = self.__pedestrian_visual.getField("rotation")
+                
+                # Position visual pedestrian slightly higher than physics robot
+                vis_pos = [new_pos[0], new_pos[1], new_pos[2] + 0.55]  # +0.55m higher
+                vis_translation.setSFVec3f(vis_pos)
+                vis_rotation.setSFRotation([0, 0, 1, new_yaw])
 
             print(f"Moving: Linear={linear_vel:.2f}, Angular={angular_vel:.2f}")
             print(f"Position: ({new_pos[0]:.2f}, {new_pos[1]:.2f}), Yaw: {new_yaw:.2f}")
