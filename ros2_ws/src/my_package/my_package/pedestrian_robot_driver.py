@@ -14,6 +14,7 @@ class PedestrianRobotDriver:
         self.__angular_speed = 1.5  # rad/s max angular speed
 
         self.__target_twist = Twist()
+        self._was_moving = False  # Track movement state for logging
 
         rclpy.init(args=None)
         self.__node = rclpy.create_node("pedestrian_robot_driver")
@@ -31,22 +32,43 @@ class PedestrianRobotDriver:
         linear_vel = self.__target_twist.linear.x * self.__linear_speed
         angular_vel = self.__target_twist.angular.z * self.__angular_speed
 
-        # Apply velocity to the robot using physics
-        # Get current rotation to determine forward direction
-        current_rotation = self.__robot.getSelf().getField("rotation").getSFRotation()
-        yaw = current_rotation[3]
+        # Get time step for position-based movement
+        time_step = self.__robot.getBasicTimeStep() / 1000.0  # Convert to seconds
 
-        # Calculate velocity components based on orientation
-        vel_x = linear_vel * math.cos(yaw)
-        vel_y = linear_vel * math.sin(yaw)
-
-        # Apply linear and angular velocity
-        self.__robot.getSelf().setVelocity([vel_x, vel_y, 0, 0, 0, angular_vel])
-
-        # Optional: Print current state for debugging
         if linear_vel != 0 or angular_vel != 0:
-            position = self.__robot.getSelf().getField("translation").getSFVec3f()
-            print(
-                f"Target velocity - Linear: {linear_vel:.2f}, Angular: {angular_vel:.2f}"
-            )
-            print(f"Position: ({position[0]:.2f}, {position[1]:.2f})")
+            # Get current position and rotation
+            translation_field = self.__robot.getSelf().getField("translation")
+            rotation_field = self.__robot.getSelf().getField("rotation")
+
+            current_pos = translation_field.getSFVec3f()
+            current_rot = rotation_field.getSFRotation()
+
+            # Extract current yaw angle (assuming rotation around Z-axis)
+            current_yaw = current_rot[3]
+
+            # Update yaw with angular velocity
+            new_yaw = current_yaw + angular_vel * time_step
+
+            # Calculate new position based on linear velocity and current orientation
+            dx = linear_vel * math.cos(current_yaw) * time_step
+            dy = linear_vel * math.sin(current_yaw) * time_step
+
+            new_pos = [
+                current_pos[0] + dx,
+                current_pos[1] + dy,
+                current_pos[2],  # Keep Z constant
+            ]
+
+            # Apply new position and rotation
+            translation_field.setSFVec3f(new_pos)
+            rotation_field.setSFRotation([0, 0, 1, new_yaw])
+
+            print(f"Moving: Linear={linear_vel:.2f}, Angular={angular_vel:.2f}")
+            print(f"Position: ({new_pos[0]:.2f}, {new_pos[1]:.2f}), Yaw: {new_yaw:.2f}")
+        else:
+            # Optional: print when stopped
+            if hasattr(self, "_was_moving") and self._was_moving:
+                print("Stopped")
+                self._was_moving = False
+
+        self._was_moving = linear_vel != 0 or angular_vel != 0
