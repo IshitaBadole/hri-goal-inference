@@ -4,7 +4,7 @@ import launch
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
-from launch.substitutions import LaunchConfiguration
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from webots_ros2_driver.webots_controller import WebotsController
 from webots_ros2_driver.webots_launcher import WebotsLauncher
 
@@ -22,9 +22,14 @@ def generate_launch_description():
 
     print(package_dir)
 
-    # Use LaunchConfiguration to get the world parameter
-    world_file = LaunchConfiguration("world")
-    webots = WebotsLauncher(world=os.path.join(package_dir, "worlds", world_file))
+    # Use PathJoinSubstitution to properly join paths with LaunchConfiguration
+    world_path = PathJoinSubstitution([
+        package_dir,
+        "worlds",
+        LaunchConfiguration("world")
+    ])
+    
+    webots = WebotsLauncher(world=world_path)
 
     my_robot_driver = WebotsController(
         robot_name="pedestrian_robot",
