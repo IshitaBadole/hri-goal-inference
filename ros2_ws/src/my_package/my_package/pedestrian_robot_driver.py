@@ -16,6 +16,9 @@ class PedestrianRobotDriver:
         self.__target_twist = Twist()
         self._was_moving = False  # Track movement state for logging
 
+        # Track robot orientation ourselves (don't rely on Webots readback)
+        self.__current_yaw = 0.0
+
         # Get reference to the visual Pedestrian node
         self.__pedestrian_visual = self.__robot.getFromDef("PEDESTRIAN_VIS")
         if self.__pedestrian_visual is None:
@@ -48,10 +51,9 @@ class PedestrianRobotDriver:
             rotation_field = self.__robot.getSelf().getField("rotation")
 
             current_pos = translation_field.getSFVec3f()
-            current_rot = rotation_field.getSFRotation()
 
-            # Extract current yaw angle (assuming rotation around Z-axis)
-            current_yaw = current_rot[3]
+            # Use our tracked yaw instead of reading from Webots (which can cause resets)
+            current_yaw = self.__current_yaw
 
             # Handle pure rotation vs movement with rotation
             new_pos = list(current_pos)  # Start with current position
@@ -66,18 +68,18 @@ class PedestrianRobotDriver:
             # Always maintain proper Z height (prevent falling due to gravity)
             new_pos[2] = 0.72  # Fixed height
 
-            # Update rotation
-            new_yaw = current_yaw + angular_vel * time_step
-            
+            # Update our tracked rotation
+            self.__current_yaw += angular_vel * time_step
+
             # Normalize angle to prevent wrap-around issues
-            while new_yaw > math.pi:
-                new_yaw -= 2 * math.pi
-            while new_yaw < -math.pi:
-                new_yaw += 2 * math.pi
+            while self.__current_yaw > math.pi:
+                self.__current_yaw -= 2 * math.pi
+            while self.__current_yaw < -math.pi:
+                self.__current_yaw += 2 * math.pi
 
             # Apply new position and rotation to physics robot
             translation_field.setSFVec3f(new_pos)
-            rotation_field.setSFRotation([0, 0, 1, new_yaw])
+            rotation_field.setSFRotation([0, 0, 1, self.__current_yaw])
 
             # Sync visual Pedestrian position if available
             if self.__pedestrian_visual is not None:
@@ -87,10 +89,12 @@ class PedestrianRobotDriver:
                 # Position visual pedestrian slightly higher than physics robot
                 vis_pos = [new_pos[0], new_pos[1], new_pos[2] + 0.55]  # +0.55m higher
                 vis_translation.setSFVec3f(vis_pos)
-                vis_rotation.setSFRotation([0, 0, 1, new_yaw])
+                vis_rotation.setSFRotation([0, 0, 1, self.__current_yaw])
 
             print(f"Moving: Linear={linear_vel:.2f}, Angular={angular_vel:.2f}")
-            print(f"Position: ({new_pos[0]:.2f}, {new_pos[1]:.2f}), Yaw: {new_yaw:.2f}")
+            print(
+                f"Position: ({new_pos[0]:.2f}, {new_pos[1]:.2f}), Yaw: {self.__current_yaw:.2f}"
+            )
         else:
             # Even when not moving, maintain proper height to prevent falling
             translation_field = self.__robot.getSelf().getField("translation")
