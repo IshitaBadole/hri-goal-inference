@@ -10,7 +10,7 @@ class PedestrianRobotDriver:
         self.__robot = webots_node.robot
 
         # Movement parameters
-        self.__linear_speed = 1.0  # m/s max speed
+        self.__linear_speed = 0.7  # m/s max speed
         self.__angular_speed = 1.5  # rad/s max angular speed
 
         self.__target_twist = Twist()
