@@ -14,7 +14,6 @@ class PedestrianRobotDriver:
         self.__angular_speed = 1.5  # rad/s max angular speed
 
         self.__target_twist = Twist()
-        self._was_moving = False  # Track movement state for logging
 
         # Track robot orientation ourselves (don't rely on Webots readback)
         self.__current_yaw = 0.0
@@ -92,37 +91,42 @@ class PedestrianRobotDriver:
                 vis_translation.setSFVec3f(vis_pos)
                 vis_rotation.setSFRotation([0, 0, 1, self.__current_yaw])
 
-            print(f"Moving: Linear={linear_vel:.2f}, Angular={angular_vel:.2f}")
-            print(
-                f"Position: ({new_pos[0]:.2f}, {new_pos[1]:.2f}), Yaw: {self.__current_yaw:.2f}"
-            )
+            # print(f"Moving: Linear={linear_vel:.2f}, Angular={angular_vel:.2f}")
+            # print(
+            #     f"Position: ({new_pos[0]:.2f}, {new_pos[1]:.2f}), Yaw: {self.__current_yaw:.2f}"
+            # )
         else:
-            if hasattr(self, "_was_moving") and self._was_moving:
-                print("Stopped")
-                self._was_moving = False
+            # Sync physics robot to visual robot position (visual is stable, physics can fall)
+            if self.__pedestrian_visual is not None:
+                # Get visual pedestrian position and rotation
+                vis_rotation = self.__pedestrian_visual.getField("rotation")
+                vis_translation = self.__pedestrian_visual.getField("translation")
+                vis_pos = list(vis_translation.getSFVec3f())
 
-                # Sync physics robot to visual robot position (visual is stable, physics can fall)
-                if self.__pedestrian_visual is not None:
-                    # Get visual pedestrian position and rotation
-                    vis_rotation = self.__pedestrian_visual.getField("rotation")
-                    vis_translation = self.__pedestrian_visual.getField("translation")
-                    vis_pos = list(vis_translation.getSFVec3f())
+                print(
+                    f"Vis Position: ({vis_pos[0]:.2f}, {vis_pos[1]:.2f}, {vis_pos[2]:.2f})"
+                )
+                # print(
+                #     f"New Body Position: ({body_pos[0]:.2f}, {body_pos[1]:.2f}, {body_pos[2]:.2f})"
+                # )
 
+                body_rotation = self.__robot.getSelf().getField("rotation")
+                body_rotation_val = list(body_rotation.getSFRotation())
+                print(
+                    f"Body Rotation: ({body_rotation_val[0]:.2f}, {body_rotation_val[1]:.2f}, {body_rotation_val[2]:.2f})"
+                )
+                # body has fallen, make it upright and align position to vis
+                if body_rotation_val[1] < 0:
+                    vis_rot = vis_rotation.getSFRotation()
+                    body_rotation.setSFRotation(vis_rot)
+                    body_translation = self.__robot.getSelf().getField("translation")
                     # Position physics robot slightly lower than visual pedestrian
                     body_pos = [
                         vis_pos[0],
                         vis_pos[1],
                         vis_pos[2] - 0.55,
                     ]  # -0.55m lower
-
-                    # Update physics robot to match visual position
-                    body_translation = self.__robot.getSelf().getField("translation")
-                    body_rotation = self.__robot.getSelf().getField("rotation")
                     body_translation.setSFVec3f(body_pos)
-                    body_rotation.setSFRotation(vis_rotation.getSFRotation())
 
                     # Update tracked yaw to match
-                    vis_rot = vis_rotation.getSFRotation()
                     self.__current_yaw = vis_rot[3]  # Sync tracked angle
-
-        self._was_moving = linear_vel != 0 or angular_vel != 0
