@@ -99,6 +99,9 @@ class PedestrianRobotDriver:
             # Even when not moving, maintain proper height to prevent falling
             translation_field = self.__robot.getSelf().getField("translation")
             current_pos = translation_field.getSFVec3f()
+            print(
+                f"current pos: ({current_pos[0]:.2f}, {current_pos[1]:.2f}, {current_pos[2]:.2f})"
+            )
             if current_pos[2] < 0.7:  # If robot has fallen below expected height
                 corrected_pos = [current_pos[0], current_pos[1], 0.72]
                 translation_field.setSFVec3f(corrected_pos)
