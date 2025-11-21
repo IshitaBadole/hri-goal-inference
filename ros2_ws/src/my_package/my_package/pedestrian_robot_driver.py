@@ -45,6 +45,7 @@ class PedestrianRobotDriver:
         # Get time step for position-based movement
         time_step = self.__robot.getBasicTimeStep() / 1000.0  # Convert to seconds
 
+        # if robot is moving
         if linear_vel != 0 or angular_vel != 0:
             # Get current position and rotation
             translation_field = self.__robot.getSelf().getField("translation")
@@ -96,20 +97,32 @@ class PedestrianRobotDriver:
                 f"Position: ({new_pos[0]:.2f}, {new_pos[1]:.2f}), Yaw: {self.__current_yaw:.2f}"
             )
         else:
-            # Even when not moving, maintain proper height to prevent falling
-            translation_field = self.__robot.getSelf().getField("translation")
-            current_pos = translation_field.getSFVec3f()
-            print(
-                f"current pos: ({current_pos[0]:.2f}, {current_pos[1]:.2f}, {current_pos[2]:.2f})"
-            )
-            if current_pos[2] < 0.7:  # If robot has fallen below expected height
-                corrected_pos = [current_pos[0], current_pos[1], 0.72]
-                translation_field.setSFVec3f(corrected_pos)
-                print(f"Height corrected to 0.72m (was {current_pos[2]:.2f}m)")
-
-            # Optional: print when stopped
             if hasattr(self, "_was_moving") and self._was_moving:
                 print("Stopped")
                 self._was_moving = False
+
+                # Sync physics robot to visual robot position (visual is stable, physics can fall)
+                if self.__pedestrian_visual is not None:
+                    # Get visual pedestrian position and rotation
+                    vis_rotation = self.__pedestrian_visual.getField("rotation")
+                    vis_translation = self.__pedestrian_visual.getField("translation")
+                    vis_pos = list(vis_translation.getSFVec3f())
+
+                    # Position physics robot slightly lower than visual pedestrian
+                    body_pos = [
+                        vis_pos[0],
+                        vis_pos[1],
+                        vis_pos[2] - 0.55,
+                    ]  # -0.55m lower
+
+                    # Update physics robot to match visual position
+                    body_translation = self.__robot.getSelf().getField("translation")
+                    body_rotation = self.__robot.getSelf().getField("rotation")
+                    body_translation.setSFVec3f(body_pos)
+                    body_rotation.setSFRotation(vis_rotation.getSFRotation())
+
+                    # Update tracked yaw to match
+                    vis_rot = vis_rotation.getSFRotation()
+                    self.__current_yaw = vis_rot[3]  # Sync tracked angle
 
         self._was_moving = linear_vel != 0 or angular_vel != 0
