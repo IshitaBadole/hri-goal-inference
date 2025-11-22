@@ -14,6 +14,7 @@ data_files.append(
             "worlds/apartment.wbt",
             "worlds/break_room.wbt",
             "worlds/factory.wbt",
+            "worlds/hall.wbt",
         ],
     )
 )
