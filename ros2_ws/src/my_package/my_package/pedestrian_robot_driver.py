@@ -1,6 +1,8 @@
+import atexit
 import csv
 import math
 import os
+import signal
 from datetime import datetime
 
 import rclpy
@@ -22,6 +24,7 @@ class PedestrianRobotDriver:
         self.__current_yaw = 0.0
 
         # Initialize position logging
+        self.__log_file_handle = None  # Initialize to None first
         self.__setup_position_logging()
 
         # Get reference to the visual Pedestrian node
@@ -62,6 +65,26 @@ class PedestrianRobotDriver:
         self.__log_file_handle.flush()
 
         print(f"Position logging initialized: {self.__log_file}")
+
+        # Register cleanup handlers
+        atexit.register(self.__cleanup_logging)
+        signal.signal(signal.SIGINT, self.__signal_handler)
+        signal.signal(signal.SIGTERM, self.__signal_handler)
+
+    def __signal_handler(self, signum, frame):
+        """Handle shutdown signals to ensure proper cleanup"""
+        print(f"\nReceived signal {signum}, cleaning up...")
+        self.__cleanup_logging()
+
+    def __cleanup_logging(self):
+        """Ensure log file is properly closed and saved"""
+        if self.__log_file_handle:
+            try:
+                self.__log_file_handle.flush()
+                self.__log_file_handle.close()
+                print(f"Log file safely closed: {self.__log_file}")
+            except:
+                pass  # File might already be closed
 
     def __cmd_vel_callback(self, twist):
         self.__target_twist = twist
@@ -168,30 +191,36 @@ class PedestrianRobotDriver:
 
     def __log_position(self):
         """Log current visual pedestrian position to CSV file"""
-        if self.__pedestrian_visual is not None:
-            # Get visual pedestrian position and rotation
-            vis_translation = self.__pedestrian_visual.getField("translation")
-            vis_rotation = self.__pedestrian_visual.getField("rotation")
+        if self.__pedestrian_visual is not None and self.__log_file_handle:
+            try:
+                # Get visual pedestrian position and rotation
+                vis_translation = self.__pedestrian_visual.getField("translation")
+                vis_rotation = self.__pedestrian_visual.getField("rotation")
 
-            if vis_translation is not None and vis_rotation is not None:
-                pos = vis_translation.getSFVec3f()
-                rot = vis_rotation.getSFRotation()
+                if vis_translation is not None and vis_rotation is not None:
+                    pos = vis_translation.getSFVec3f()
+                    rot = vis_rotation.getSFRotation()
 
-                # Get current movement commands for context
-                linear_vel = self.__target_twist.linear.x * self.__linear_speed
-                angular_vel = self.__target_twist.angular.z * self.__angular_speed
+                    # Get current movement commands for context
+                    linear_vel = self.__target_twist.linear.x * self.__linear_speed
+                    angular_vel = self.__target_twist.angular.z * self.__angular_speed
 
-                # Log with timestamp
-                timestamp = datetime.now().isoformat()
-                self.__csv_writer.writerow(
-                    [
-                        timestamp,
-                        f"{pos[0]:.3f}",
-                        f"{pos[1]:.3f}",
-                        f"{pos[2]:.3f}",
-                        f"{rot[3]:.3f}",  # yaw angle
-                        f"{linear_vel:.3f}",
-                        f"{angular_vel:.3f}",
-                    ]
-                )
-                self.__log_file_handle.flush()  # Ensure immediate write
+                    # Log with timestamp
+                    timestamp = datetime.now().isoformat()
+                    self.__csv_writer.writerow(
+                        [
+                            timestamp,
+                            f"{pos[0]:.3f}",
+                            f"{pos[1]:.3f}",
+                            f"{pos[2]:.3f}",
+                            f"{rot[3]:.3f}",  # yaw angle
+                            f"{linear_vel:.3f}",
+                            f"{angular_vel:.3f}",
+                        ]
+                    )
+                    # Force immediate write to disk
+                    self.__log_file_handle.flush()
+                    os.fsync(self.__log_file_handle.fileno())
+            except Exception as e:
+                # Don't let logging errors crash the simulation
+                print(f"Logging error: {e}")
