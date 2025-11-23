@@ -37,6 +37,7 @@ setup(
         "console_scripts": [
             "my_robot_driver = my_package.my_robot_driver:main",
             "teleop = my_package.teleop:main",
+            "position_logger = my_package.position_logger:main",
         ],
     },
 )

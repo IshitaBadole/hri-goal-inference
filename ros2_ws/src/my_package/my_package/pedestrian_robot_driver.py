@@ -54,37 +54,16 @@ class PedestrianRobotDriver:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         self.__log_file = os.path.join(log_dir, f"pedestrian_positions_{timestamp}.csv")
 
-        # Initialize CSV writer
-        self.__log_file_handle = open(self.__log_file, "w", newline="")
-        self.__csv_writer = csv.writer(self.__log_file_handle)
-
-        # Write header
-        self.__csv_writer.writerow(
-            ["timestamp", "x", "y", "z", "yaw", "linear_vel", "angular_vel"]
-        )
-        self.__log_file_handle.flush()
+        # Write header immediately and close (no persistent handle)
+        with open(self.__log_file, "w", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow(
+                ["timestamp", "x", "y", "z", "yaw", "linear_vel", "angular_vel"]
+            )
 
         print(f"Position logging initialized: {self.__log_file}")
 
-        # Register cleanup handlers
-        atexit.register(self.__cleanup_logging)
-        signal.signal(signal.SIGINT, self.__signal_handler)
-        signal.signal(signal.SIGTERM, self.__signal_handler)
-
-    def __signal_handler(self, signum, frame):
-        """Handle shutdown signals to ensure proper cleanup"""
-        print(f"\nReceived signal {signum}, cleaning up...")
-        self.__cleanup_logging()
-
-    def __cleanup_logging(self):
-        """Ensure log file is properly closed and saved"""
-        if self.__log_file_handle:
-            try:
-                self.__log_file_handle.flush()
-                self.__log_file_handle.close()
-                print(f"Log file safely closed: {self.__log_file}")
-            except:
-                pass  # File might already be closed
+        # No need for cleanup handlers since we don't keep files open
 
     def __cmd_vel_callback(self, twist):
         self.__target_twist = twist
@@ -190,8 +169,10 @@ class PedestrianRobotDriver:
                     self.__current_yaw = vis_rot[3]  # Sync tracked angle
 
     def __log_position(self):
-        """Log current visual pedestrian position to CSV file"""
-        if self.__pedestrian_visual is not None and self.__log_file_handle:
+        """Log current visual pedestrian position to CSV file using immediate append"""
+        if self.__pedestrian_visual is not None and hasattr(
+            self, "_PedestrianRobotDriver__log_file"
+        ):
             try:
                 # Get visual pedestrian position and rotation
                 vis_translation = self.__pedestrian_visual.getField("translation")
@@ -205,22 +186,25 @@ class PedestrianRobotDriver:
                     linear_vel = self.__target_twist.linear.x * self.__linear_speed
                     angular_vel = self.__target_twist.angular.z * self.__angular_speed
 
-                    # Log with timestamp
+                    # Log with timestamp - open, write, close immediately
                     timestamp = datetime.now().isoformat()
-                    self.__csv_writer.writerow(
-                        [
-                            timestamp,
-                            f"{pos[0]:.3f}",
-                            f"{pos[1]:.3f}",
-                            f"{pos[2]:.3f}",
-                            f"{rot[3]:.3f}",  # yaw angle
-                            f"{linear_vel:.3f}",
-                            f"{angular_vel:.3f}",
-                        ]
-                    )
-                    # Force immediate write to disk
-                    self.__log_file_handle.flush()
-                    os.fsync(self.__log_file_handle.fileno())
+
+                    # Append to file immediately and close (most persistent method)
+                    with open(self.__log_file, "a", newline="") as f:
+                        writer = csv.writer(f)
+                        writer.writerow(
+                            [
+                                timestamp,
+                                f"{pos[0]:.3f}",
+                                f"{pos[1]:.3f}",
+                                f"{pos[2]:.3f}",
+                                f"{rot[3]:.3f}",  # yaw angle
+                                f"{linear_vel:.3f}",
+                                f"{angular_vel:.3f}",
+                            ]
+                        )
+                        # File automatically flushed and closed by 'with' statement
+
             except Exception as e:
                 # Don't let logging errors crash the simulation
                 print(f"Logging error: {e}")
