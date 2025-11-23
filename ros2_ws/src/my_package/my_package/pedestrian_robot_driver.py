@@ -1,4 +1,7 @@
+import csv
 import math
+import os
+from datetime import datetime
 
 import rclpy
 from controller import Supervisor
@@ -18,6 +21,9 @@ class PedestrianRobotDriver:
         # Track robot orientation ourselves (don't rely on Webots readback)
         self.__current_yaw = 0.0
 
+        # Initialize position logging
+        self.__setup_position_logging()
+
         # Get reference to the visual Pedestrian node
         self.__pedestrian_visual = self.__robot.getFromDef("PEDESTRIAN_VIS")
         if self.__pedestrian_visual is None:
@@ -31,11 +37,40 @@ class PedestrianRobotDriver:
 
         print("Pedestrian robot driver initialized")
 
+    def __setup_position_logging(self):
+        """Initialize CSV logging for pedestrian positions"""
+        # Use shared volume if available (Docker), otherwise home directory
+        if os.path.exists("/root/shared"):
+            log_dir = "/root/shared/pedestrian_logs"
+        else:
+            log_dir = os.path.expanduser("~/pedestrian_logs")
+
+        os.makedirs(log_dir, exist_ok=True)
+
+        # Create unique log file with timestamp
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        self.__log_file = os.path.join(log_dir, f"pedestrian_positions_{timestamp}.csv")
+
+        # Initialize CSV writer
+        self.__log_file_handle = open(self.__log_file, "w", newline="")
+        self.__csv_writer = csv.writer(self.__log_file_handle)
+
+        # Write header
+        self.__csv_writer.writerow(
+            ["timestamp", "x", "y", "z", "yaw", "linear_vel", "angular_vel"]
+        )
+        self.__log_file_handle.flush()
+
+        print(f"Position logging initialized: {self.__log_file}")
+
     def __cmd_vel_callback(self, twist):
         self.__target_twist = twist
 
     def step(self):
         rclpy.spin_once(self.__node, timeout_sec=0)
+
+        # Log visual pedestrian position at each step
+        self.__log_position()
 
         # Get movement commands
         linear_vel = self.__target_twist.linear.x * self.__linear_speed
@@ -130,3 +165,33 @@ class PedestrianRobotDriver:
 
                     # Update tracked yaw to match
                     self.__current_yaw = vis_rot[3]  # Sync tracked angle
+
+    def __log_position(self):
+        """Log current visual pedestrian position to CSV file"""
+        if self.__pedestrian_visual is not None:
+            # Get visual pedestrian position and rotation
+            vis_translation = self.__pedestrian_visual.getField("translation")
+            vis_rotation = self.__pedestrian_visual.getField("rotation")
+
+            if vis_translation is not None and vis_rotation is not None:
+                pos = vis_translation.getSFVec3f()
+                rot = vis_rotation.getSFRotation()
+
+                # Get current movement commands for context
+                linear_vel = self.__target_twist.linear.x * self.__linear_speed
+                angular_vel = self.__target_twist.angular.z * self.__angular_speed
+
+                # Log with timestamp
+                timestamp = datetime.now().isoformat()
+                self.__csv_writer.writerow(
+                    [
+                        timestamp,
+                        f"{pos[0]:.3f}",
+                        f"{pos[1]:.3f}",
+                        f"{pos[2]:.3f}",
+                        f"{rot[3]:.3f}",  # yaw angle
+                        f"{linear_vel:.3f}",
+                        f"{angular_vel:.3f}",
+                    ]
+                )
+                self.__log_file_handle.flush()  # Ensure immediate write
