@@ -4,7 +4,7 @@ import launch
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, TextSubstitution
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from webots_ros2_driver.webots_controller import WebotsController
 from webots_ros2_driver.webots_launcher import WebotsLauncher
 from launch_ros.actions import Node
@@ -72,7 +72,7 @@ def generate_launch_description():
         parameters=[
             {'world': world},
             {'participant_id': participant_id},
-            {'scenario_no': TextSubstitution(text=scenario_no)},
+            {'scenario_no': scenario_no},
         ]
     )
 
