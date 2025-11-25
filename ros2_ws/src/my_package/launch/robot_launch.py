@@ -7,6 +7,7 @@ from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from webots_ros2_driver.webots_controller import WebotsController
 from webots_ros2_driver.webots_launcher import WebotsLauncher
+from launch_ros.actions import Node
 
 
 def generate_launch_description():
@@ -20,13 +21,38 @@ def generate_launch_description():
         description="World file name to load (should be in worlds/ directory)",
     )
 
+    #Log file name constructed using world, participant_id, and scenario_no (Ex : p1_apartment_scenario1.log)
+
+    # Declare launch argument for participant ID
+    participant_arg = DeclareLaunchArgument(
+        "participant_id",
+        default_value="p_default",
+        description="Participant ID for the simulation (used to name log file)",
+    )
+
+    # Declare launch argument for Scenario number
+    scenario_arg = DeclareLaunchArgument(
+        "scenario_no",
+        default_value="0",
+        description="Scenario number being simulated in the current world (used to name log file)",
+    )
+
+    # Get the launch configurations
+    world = LaunchConfiguration('world')
+    participant_id = LaunchConfiguration('participant_id')
+    scenario_no = LaunchConfiguration('scenario_no')
+
+    print(f"World file: {world}")
+    print(f"Participant ID: {participant_id}")
+    print(f"Scenario number: {scenario_no}")
+
     print(package_dir)
 
     # Use PathJoinSubstitution to properly join paths with LaunchConfiguration
     world_path = PathJoinSubstitution([
         package_dir,
         "worlds",
-        LaunchConfiguration("world")
+        world
     ])
     
     webots = WebotsLauncher(world=world_path)
@@ -38,9 +64,22 @@ def generate_launch_description():
         ],
     )
 
+    position_logger_node = Node(
+        package='my_package',
+        executable='position_logger.py',
+        name='position_logger',
+        output='screen',
+        parameters=[
+            {'world': world},
+            {'participant_id': participant_id},
+            {'scenario_no': scenario_no},
+        ]
+    )
+
     return LaunchDescription(
         [
-            world_arg,  # Add the launch argument
+            world_arg,  # Add the launch arguments
+            position_logger_node,
             webots,
             my_robot_driver,
             launch.actions.RegisterEventHandler(

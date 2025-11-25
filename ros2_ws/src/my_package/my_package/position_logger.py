@@ -20,9 +20,20 @@ class PositionLogger(Node):
             log_dir = os.path.expanduser("~/pedestrian_logs")
         os.makedirs(log_dir, exist_ok=True)
 
+        # Declare the parameters first
+        self.declare_parameter('world', 'default_world.wbt')
+        self.declare_parameter('participant_id', 'p_default')
+        self.declare_parameter('scenario_no', '0')
+
+        #Get the values of the parameters
+        self.world_name = self.get_parameter('world').get_parameter_value().string_value
+        self.participant_id = self.get_parameter('participant_id').get_parameter_value().string_value
+        self.scenario_no = self.get_parameter('scenario_no').get_parameter_value().string_value
+
         # Create log file
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        self.log_file = os.path.join(log_dir, f"pedestrian_positions_{timestamp}.csv")
+        log_filename = f"{self.participant_id}_{self.world_name.replace('.wbt','')}_scenario{self.scenario_no}_{timestamp}.csv"
+        self.log_file = os.path.join(log_dir, log_filename)
 
         # Open with immediate writing
         self.log_handle = open(self.log_file, "w", newline="", buffering=1)
