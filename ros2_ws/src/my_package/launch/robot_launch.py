@@ -66,7 +66,7 @@ def generate_launch_description():
 
     position_logger_node = Node(
         package='my_package',
-        executable='position_logger.py',
+        executable='position_logger',
         name='position_logger',
         output='screen',
         parameters=[
