@@ -13,11 +13,11 @@ class PositionLogger(Node):
     def __init__(self):
         super().__init__("position_logger")
 
-        # Setup log directory
-        if os.path.exists("/root/shared"):
-            log_dir = "/root/shared/pedestrian_logs"
+        # Setup log directory - save to persistent webots_server location
+        if os.path.exists("/root/webots_server"):
+            log_dir = "/root/webots_server/pedestrian_logs"
         else:
-            log_dir = os.path.expanduser("~/pedestrian_logs")
+            log_dir = os.path.expanduser("~/webots_server/pedestrian_logs")
         os.makedirs(log_dir, exist_ok=True)
 
         # Declare the parameters first

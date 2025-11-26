@@ -4,6 +4,7 @@
 
 `docker run -it --name ros2-webots-dev \
   -v $HOME/webots_shared:/root/shared \
+  -v $HOME/webots_server:/root/webots_server \
   -e WEBOTS_SHARED_FOLDER="$HOME/webots_shared:/root/shared" \
   ros2-humble-webots`
 
@@ -20,29 +21,27 @@
 `python3 local_simulation_server.py`
 
 # Start and enter the container
-`docker start ros2-webots-dev`
-
-`docker exec -it ros2-webots-dev bash`
+```
+docker start ros2-webots-dev
+docker exec -it ros2-webots-dev bash
+```
 
 # Update repo to latest code and switch to your branch (run inside container)
-`cd hri-goal-inference`
-
-`git fetch origin`
-
-`git checkout pedestrian-teleop`
-
-`git pull origin pedestrian-teleop`
+```shell
+cd hri-goal-inference
+git fetch origin
+git checkout pedestrian-teleop
+git pull origin pedestrian-teleop
+```
 
 # Terminal 1 inside container (To launch webots and world)
-`cd hri-goal-inference/ros2_ws/src`
-
-`colcon build`
-
-`source /opt/ros/humble/setup.bash`
-
-`source install/local_setup.bash`
-
-`ros2 launch my_package robot_launch.py`
+```
+cd hri-goal-inference/ros2_ws/src
+colcon build
+source /opt/ros/humble/setup.bash
+source install/local_setup.bash
+ros2 launch my_package robot_launch.py
+```
 
 ## To launch webots with world file argument
 `ros2 launch my_package robot_launch.py world:=apartment.wbt`
@@ -51,15 +50,13 @@
 `ros2 launch my_package robot_launch.py world:=hall.wbt`
 
 # Terminal 2 inside container (For Teleop)
-`cd hri-goal-inference/ros2_ws/src`
-
-`colcon build`
-
-`source /opt/ros/humble/setup.bash`
-
-`source install/local_setup.bash`
-
-`ros2 run my_package teleop`
+```
+cd hri-goal-inference/ros2_ws/src
+colcon build
+source /opt/ros/humble/setup.bash
+source install/local_setup.bash
+ros2 run my_package teleop
+```
 
 # Debug teleop
 
@@ -77,3 +74,9 @@
 
 ## Check driver's subscribed topic (pedestrian driver)
 `ros2 node info /pedestrian_robot_driver`
+
+# Stop and remove the container
+```
+docker stop ros2-webots-dev
+docker rm ros2-webots-dev
+```
