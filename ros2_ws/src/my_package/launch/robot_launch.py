@@ -5,9 +5,9 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch_ros.actions import Node
 from webots_ros2_driver.webots_controller import WebotsController
 from webots_ros2_driver.webots_launcher import WebotsLauncher
-from launch_ros.actions import Node
 
 
 def generate_launch_description():
@@ -21,7 +21,7 @@ def generate_launch_description():
         description="World file name to load (should be in worlds/ directory)",
     )
 
-    #Log file name constructed using world, participant_id, and scenario_no (Ex : p1_apartment_scenario1.log)
+    # Log file name constructed using world, participant_id, and scenario_no (Ex : p1_apartment_scenario1.log)
 
     # Declare launch argument for participant ID
     participant_arg = DeclareLaunchArgument(
@@ -38,9 +38,9 @@ def generate_launch_description():
     )
 
     # Get the launch configurations
-    world = LaunchConfiguration('world')
-    participant_id = LaunchConfiguration('participant_id')
-    scenario_no = LaunchConfiguration('scenario_no')
+    world = LaunchConfiguration("world")
+    participant_id = LaunchConfiguration("participant_id")
+    scenario_no = LaunchConfiguration("scenario_no")
 
     print(f"World file: {world}")
     print(f"Participant ID: {participant_id}")
@@ -49,36 +49,37 @@ def generate_launch_description():
     print(package_dir)
 
     # Use PathJoinSubstitution to properly join paths with LaunchConfiguration
-    world_path = PathJoinSubstitution([
-        package_dir,
-        "worlds",
-        world
-    ])
-    
+    world_path = PathJoinSubstitution([package_dir, "worlds", world])
+
     webots = WebotsLauncher(world=world_path)
 
     my_robot_driver = WebotsController(
         robot_name="pedestrian_robot",
         parameters=[
             {"robot_description": robot_description_path},
+            {"participant_id": participant_id},
+            {"scenario_no": scenario_no},
+            {"world": world},
         ],
     )
 
     position_logger_node = Node(
-        package='my_package',
-        executable='position_logger',
-        name='position_logger',
-        output='screen',
+        package="my_package",
+        executable="position_logger",
+        name="position_logger",
+        output="screen",
         parameters=[
-            {'world': world},
-            {'participant_id': participant_id},
-            {'scenario_no': scenario_no},
-        ]
+            {"world": world},
+            {"participant_id": participant_id},
+            {"scenario_no": scenario_no},
+        ],
     )
 
     return LaunchDescription(
         [
             world_arg,  # Add the launch arguments
+            participant_arg,
+            scenario_arg,
             position_logger_node,
             webots,
             my_robot_driver,

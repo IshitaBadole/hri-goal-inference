@@ -36,6 +36,16 @@ class PedestrianRobotDriver:
 
         rclpy.init(args=None)
         self.__node = rclpy.create_node("pedestrian_robot_driver")
+
+        # Declare and get parameters
+        self.__node.declare_parameter("participant_id", "p_default")
+        self.__node.declare_parameter("scenario_no", "0")
+        self.__node.declare_parameter("world", "my_world.wbt")
+
+        self.__participant_id = self.__node.get_parameter("participant_id").value
+        self.__scenario_no = self.__node.get_parameter("scenario_no").value
+        self.__world = self.__node.get_parameter("world").value
+
         self.__node.create_subscription(Twist, "cmd_vel", self.__cmd_vel_callback, 1)
 
         # Create publisher for pedestrian pose
@@ -55,9 +65,13 @@ class PedestrianRobotDriver:
 
         os.makedirs(log_dir, exist_ok=True)
 
-        # Create unique log file with timestamp
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        self.__log_file = os.path.join(log_dir, f"pedestrian_positions_{timestamp}.csv")
+        # Create log file with participant_id, world, and scenario_no
+        # Format: p1_apartment_scenario1.csv
+        world_name = os.path.splitext(self.__world)[0]  # Remove .wbt extension
+        self.__log_file = os.path.join(
+            log_dir,
+            f"{self.__participant_id}_{world_name}_scenario{self.__scenario_no}.csv",
+        )
 
         # Write header immediately and close (no persistent handle)
         with open(self.__log_file, "w", newline="") as f:
