@@ -1,13 +1,15 @@
 import atexit
-import csv
+
+# import csv
 import math
 import os
 import signal
-from datetime import datetime
 
 import rclpy
 from controller import Supervisor
 from geometry_msgs.msg import PoseStamped, Twist
+
+# from datetime import datetime
 
 
 class PedestrianRobotDriver:
@@ -50,39 +52,39 @@ class PedestrianRobotDriver:
         )
 
         # Initialize position logging (after node is created to access parameters)
-        self.__log_file_handle = None
-        self.__setup_position_logging()
+        # self.__log_file_handle = None
+        # self.__setup_position_logging()
 
         print("Pedestrian robot driver initialized")
 
-    def __setup_position_logging(self):
-        """Initialize CSV logging for pedestrian positions"""
-        # Use shared volume if available (Docker), otherwise home directory
-        if os.path.exists("/root/shared"):
-            log_dir = "/root/shared/pedestrian_logs"
-        else:
-            log_dir = os.path.expanduser("~/pedestrian_logs")
+    # def __setup_position_logging(self):
+    #     """Initialize CSV logging for pedestrian positions"""
+    #     # Use shared volume if available (Docker), otherwise home directory
+    #     if os.path.exists("/root/shared"):
+    #         log_dir = "/root/shared/pedestrian_logs"
+    #     else:
+    #         log_dir = os.path.expanduser("~/pedestrian_logs")
 
-        os.makedirs(log_dir, exist_ok=True)
+    #     os.makedirs(log_dir, exist_ok=True)
 
-        # Create log file with participant_id, world, and scenario_no
-        # Format: p1_apartment_scenario1.csv
-        world_name = os.path.splitext(self.__world)[0]  # Remove .wbt extension
-        self.__log_file = os.path.join(
-            log_dir,
-            f"{self.__participant_id}_{world_name}_scenario{self.__scenario_no}.csv",
-        )
+    #     # Create log file with participant_id, world, and scenario_no
+    #     # Format: p1_apartment_scenario1.csv
+    #     world_name = os.path.splitext(self.__world)[0]  # Remove .wbt extension
+    #     self.__log_file = os.path.join(
+    #         log_dir,
+    #         f"{self.__participant_id}_{world_name}_scenario{self.__scenario_no}.csv",
+    #     )
 
-        # Write header immediately and close (no persistent handle)
-        with open(self.__log_file, "w", newline="") as f:
-            writer = csv.writer(f)
-            writer.writerow(
-                ["timestamp", "x", "y", "z", "yaw", "linear_vel", "angular_vel"]
-            )
+    #     # Write header immediately and close (no persistent handle)
+    #     with open(self.__log_file, "w", newline="") as f:
+    #         writer = csv.writer(f)
+    #         writer.writerow(
+    #             ["timestamp", "x", "y", "z", "yaw", "linear_vel", "angular_vel"]
+    #         )
 
-        print(f"Position logging initialized: {self.__log_file}")
+    #     print(f"Position logging initialized: {self.__log_file}")
 
-        # No need for cleanup handlers since we don't keep files open
+    #     # No need for cleanup handlers since we don't keep files open
 
     def __cmd_vel_callback(self, twist):
         self.__target_twist = twist
@@ -91,7 +93,7 @@ class PedestrianRobotDriver:
         rclpy.spin_once(self.__node, timeout_sec=0)
 
         # Log and publish visual pedestrian position at each step
-        self.__log_position()
+        self.__publish_position()
 
         # Get movement commands
         linear_vel = self.__target_twist.linear.x * self.__linear_speed
@@ -187,11 +189,9 @@ class PedestrianRobotDriver:
                     # Update tracked yaw to match
                     self.__current_yaw = vis_rot[3]  # Sync tracked angle
 
-    def __log_position(self):
-        """Log current visual pedestrian position to CSV file using immediate append"""
-        if self.__pedestrian_visual is not None and hasattr(
-            self, "_PedestrianRobotDriver__log_file"
-        ):
+    def __publish_position(self):
+        """Publish current visual pedestrian position to ROS topic"""
+        if self.__pedestrian_visual is not None:
             try:
                 # Get visual pedestrian position and rotation
                 vis_translation = self.__pedestrian_visual.getField("translation")
@@ -200,29 +200,6 @@ class PedestrianRobotDriver:
                 if vis_translation is not None and vis_rotation is not None:
                     pos = vis_translation.getSFVec3f()
                     rot = vis_rotation.getSFRotation()
-
-                    # Get current movement commands for context
-                    linear_vel = self.__target_twist.linear.x * self.__linear_speed
-                    angular_vel = self.__target_twist.angular.z * self.__angular_speed
-
-                    # Log with timestamp - open, write, close immediately
-                    timestamp = datetime.now().isoformat()
-
-                    # Append to file immediately and close (most persistent method)
-                    with open(self.__log_file, "a", newline="") as f:
-                        writer = csv.writer(f)
-                        writer.writerow(
-                            [
-                                timestamp,
-                                f"{pos[0]:.3f}",
-                                f"{pos[1]:.3f}",
-                                f"{pos[2]:.3f}",
-                                f"{rot[3]:.3f}",  # yaw angle
-                                f"{linear_vel:.3f}",
-                                f"{angular_vel:.3f}",
-                            ]
-                        )
-                        # File automatically flushed and closed by 'with' statement
 
                     # Publish pose message
                     pose_msg = PoseStamped()
@@ -243,11 +220,5 @@ class PedestrianRobotDriver:
                     self.__pose_pub.publish(pose_msg)
 
             except Exception as e:
-                # Don't let logging errors crash the simulation
-                print(f"Logging error: {e}")
-        else:
-            # Debug: check why logging is not working
-            if self.__pedestrian_visual is None:
-                print("DEBUG: pedestrian_visual is None")
-            if not hasattr(self, "_PedestrianRobotDriver__log_file"):
-                print("DEBUG: log_file attribute not found")
+                # Don't let publishing errors crash the simulation
+                print(f"Publishing error: {e}")
