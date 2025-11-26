@@ -7,7 +7,7 @@ from datetime import datetime
 
 import rclpy
 from controller import Supervisor
-from geometry_msgs.msg import Twist
+from geometry_msgs.msg import PoseStamped, Twist
 
 
 class PedestrianRobotDriver:
@@ -37,6 +37,11 @@ class PedestrianRobotDriver:
         rclpy.init(args=None)
         self.__node = rclpy.create_node("pedestrian_robot_driver")
         self.__node.create_subscription(Twist, "cmd_vel", self.__cmd_vel_callback, 1)
+
+        # Create publisher for pedestrian pose
+        self.__pose_pub = self.__node.create_publisher(
+            PoseStamped, "pedestrian_pose", 10
+        )
 
         print("Pedestrian robot driver initialized")
 
@@ -71,7 +76,7 @@ class PedestrianRobotDriver:
     def step(self):
         rclpy.spin_once(self.__node, timeout_sec=0)
 
-        # Log visual pedestrian position at each step
+        # Log and publish visual pedestrian position at each step
         self.__log_position()
 
         # Get movement commands
@@ -205,6 +210,30 @@ class PedestrianRobotDriver:
                         )
                         # File automatically flushed and closed by 'with' statement
 
+                    # Publish pose message
+                    pose_msg = PoseStamped()
+                    pose_msg.header.stamp = self.__node.get_clock().now().to_msg()
+                    pose_msg.header.frame_id = "world"
+                    pose_msg.pose.position.x = pos[0]
+                    pose_msg.pose.position.y = pos[1]
+                    pose_msg.pose.position.z = pos[2]
+
+                    # Convert yaw to quaternion (z-axis rotation only)
+                    cy = math.cos(rot[3] * 0.5)
+                    sy = math.sin(rot[3] * 0.5)
+                    pose_msg.pose.orientation.x = 0.0
+                    pose_msg.pose.orientation.y = 0.0
+                    pose_msg.pose.orientation.z = sy
+                    pose_msg.pose.orientation.w = cy
+
+                    self.__pose_pub.publish(pose_msg)
+
             except Exception as e:
                 # Don't let logging errors crash the simulation
                 print(f"Logging error: {e}")
+        else:
+            # Debug: check why logging is not working
+            if self.__pedestrian_visual is None:
+                print("DEBUG: pedestrian_visual is None")
+            if not hasattr(self, "_PedestrianRobotDriver__log_file"):
+                print("DEBUG: log_file attribute not found")
