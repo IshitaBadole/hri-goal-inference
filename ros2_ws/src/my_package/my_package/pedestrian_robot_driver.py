@@ -23,10 +23,6 @@ class PedestrianRobotDriver:
         # Track robot orientation ourselves (don't rely on Webots readback)
         self.__current_yaw = 0.0
 
-        # Initialize position logging
-        self.__log_file_handle = None  # Initialize to None first
-        self.__setup_position_logging()
-
         # Get reference to the visual Pedestrian node
         self.__pedestrian_visual = self.__robot.getFromDef("PEDESTRIAN_VIS")
         if self.__pedestrian_visual is None:
@@ -52,6 +48,10 @@ class PedestrianRobotDriver:
         self.__pose_pub = self.__node.create_publisher(
             PoseStamped, "pedestrian_pose", 10
         )
+
+        # Initialize position logging (after node is created to access parameters)
+        self.__log_file_handle = None
+        self.__setup_position_logging()
 
         print("Pedestrian robot driver initialized")
 
