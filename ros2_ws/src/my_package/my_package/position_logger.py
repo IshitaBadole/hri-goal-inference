@@ -23,7 +23,7 @@ class PositionLogger(Node):
         # Declare the parameters first
         self.declare_parameter("world", "default_world.wbt")
         self.declare_parameter("participant_id", "p_default")
-        self.declare_parameter("scenario_no", 0)
+        self.declare_parameter("scenario_no", "0")
 
         # Get the values of the parameters
         self.world_name = self.get_parameter("world").get_parameter_value().string_value
