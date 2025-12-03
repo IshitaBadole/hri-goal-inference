@@ -19,3 +19,10 @@ Implementation of Dijkstra's algorithm on a 2D grid. This is derived from the ho
 ### RRT
 
 Implementation of RRT (holonomic and non-holonomic) algorithm on a 2D grid. This is derived from the homework from CSCI 5302:Advance Robotics. We would we using the holonimic implementation of RRT.
+
+# WeBots setup
+
+WeBots Version: R2022B
+
+World Files: https://github.com/cyberbotics/webots/tree/909a02174b1eb83373a924c263da6e33d3921f35/projects/samples/environments/indoor/worlds
+
