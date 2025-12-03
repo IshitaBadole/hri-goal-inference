@@ -17,7 +17,7 @@ class PositionLogger(Node):
         if os.path.exists("/root/webots_server"):
             log_dir = "/root/webots_server/pedestrian_logs"
         else:
-            log_dir = os.path.expanduser("~/webots_server/pedestrian_logs")
+            log_dir = os.path.expanduser("$HOME/webots_server/pedestrian_logs")
         os.makedirs(log_dir, exist_ok=True)
 
         # Declare the parameters first

@@ -63,7 +63,7 @@ class PedestrianRobotDriver:
     #     if os.path.exists("/root/shared"):
     #         log_dir = "/root/shared/pedestrian_logs"
     #     else:
-    #         log_dir = os.path.expanduser("~/pedestrian_logs")
+    #         log_dir = os.path.expanduser("$HOME/pedestrian_logs")
 
     #     os.makedirs(log_dir, exist_ok=True)
 
