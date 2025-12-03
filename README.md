@@ -2,10 +2,81 @@
 
 # System Requirements
 - MacOS system
-- [Install Webots](https://cyberbotics.com/doc/guide/installation-procedure#from-the-installation-file)
-- Install python
+- [Install Webots](https://cyberbotics.com/doc/guide/installation-procedure#from-the-installation-file) (R2022b recommended)
+- [Install Docker Desktop](https://www.docker.com/products/docker-desktop)
+- Install Python 3
 
-# On your local machine
+# Quick Start (Recommended)
+
+## One-Command Setup
+Clone this repo and run the automated setup script:
+```bash
+git clone https://github.com/IshitaBadole/hri-goal-inference.git
+cd hri-goal-inference
+chmod +x setup.sh
+./setup.sh
+```
+
+The setup script will:
+- Verify prerequisites (Docker, Webots)
+- Create required directories (`$HOME/webots_shared`, `$HOME/webots_server`)
+- Build the Docker image
+- Create and configure the container
+- Clone and build the ROS2 package inside the container
+
+## Running Experiments
+
+Once setup is complete, run an experiment with a single command:
+```bash
+chmod +x run_experiment.sh
+./run_experiment.sh <participant_id> <world> <scenario_no>
+```
+
+**Example:**
+```bash
+./run_experiment.sh p1 apartment.wbt 1
+```
+
+**Available worlds:**
+- `apartment.wbt`
+- `break_room.wbt`
+- `factory.wbt`
+- `hall.wbt`
+- `my_world.wbt` (default arena with obstacles)
+
+The experiment script will:
+- Automatically start all 3 required terminals using tmux
+- Launch webots-server, ROS launcher, and teleop in the correct order
+- Attach you to the teleop window for immediate control
+- Save logs to `$HOME/webots_server/pedestrian_logs/<participant_id>_<world>_<scenario_no>.csv`
+
+**Teleop Instructions:**
+Keep focus in the teleop terminal. Use the following keys to move the pedestrian:
+- `W/S`: Move forward/backward
+- `A/D`: Turn left/right
+- `Q/E`: Move diagonally
+- `X`: Stop
+- `Ctrl+C`: Quit teleop
+
+For best experience, drag the Webots window and teleop terminal side-by-side on the same screen.
+
+**Tmux controls:**
+- Switch windows: `Ctrl+b` then `0/1/2`
+- Scroll in window: `Ctrl+b` then `[`
+- Detach session: `Ctrl+b` then `d`
+- Reattach session: `tmux attach -t hri_experiment_<participant_id>_<scenario_no>`
+
+**To stop the experiment:**
+1. Stop teleop (window 2): `Ctrl+C`
+2. Stop ROS launcher (window 1): `Ctrl+C`
+3. Stop webots-server (window 0): `Ctrl+C`
+4. Exit session: `Ctrl+b` then `:kill-session`
+
+---
+
+# Manual Setup (Alternative)
+
+If you prefer to set up manually or need to troubleshoot, follow these detailed steps:
 
 ## Initial one-time setup
 Clone this repo
@@ -21,14 +92,14 @@ docker build -t ros2-humble-webots .
 
 Create `webots_shared` and `webots_server` directories in the root directory.
 ```
-cd ~
+cd $HOME
 mkdir webots_shared
 mkdir webots_server
 ```
 
 Create and run a new container `ros2-webots-dev` from the image.
-Mount `~/webots_shared` (Mac) to `/root/shared` (container).
-Mount `~/webots_server` (Mac) to `/root/webots_server` (container) for persistent logs.
+Mount `$HOME/webots_shared` (Mac) to `/root/shared` (container).
+Mount `$HOME/webots_server` (Mac) to `/root/webots_server` (container) for persistent logs.
 Set the environment variable for webots-server.
 ```
 docker run -it --name ros2-webots-dev \
@@ -54,7 +125,7 @@ The experiment runs by having three terminals running simultaneously.
 
 ### Terminal 1: Run the local simulation server script on your local machine (NOT inside container)
 ```
-cd ~/webots_shared
+cd $HOME/webots_shared
 export WEBOTS_HOME=/Applications/Webots.app
 curl -O https://raw.githubusercontent.com/cyberbotics/webots-server/master/local_simulation_server.py
 python3 local_simulation_server.py
@@ -122,7 +193,7 @@ Press `Ctrl+C` in Terminal 1 to stop the local simulation server.
 
 On your local machine
 ```
-cd ~/webots_server/pedestrian_logs
+cd $HOME/webots_server/pedestrian_logs
 ls
 ```
 
