@@ -23,19 +23,19 @@ class PositionLogger(Node):
         # Declare the parameters first
         self.declare_parameter("world", "default_world.wbt")
         self.declare_parameter("participant_id", "p_default")
-        self.declare_parameter("scenario_no", "0")
+        self.declare_parameter("scenario_no", 0)
 
         # Get the values of the parameters
         self.world_name = self.get_parameter("world").get_parameter_value().string_value
         self.participant_id = (
             self.get_parameter("participant_id").get_parameter_value().string_value
         )
-        self.scenario_no = (
-            self.get_parameter("scenario_no").get_parameter_value().string_value
-        )
+        # scenario_no can be passed as int from command line, convert to string
+        scenario_param = self.get_parameter("scenario_no").get_parameter_value()
+        self.scenario_no = str(scenario_param.integer_value)
 
         # Create log file
-        log_filename = f"{self.participant_id}_{self.world_name.replace('.wbt','')}_scenario{self.scenario_no}.csv"
+        log_filename = f"{self.participant_id}_{self.world_name.replace('.wbt','')}_s{self.scenario_no}.csv"
         self.log_file = os.path.join(log_dir, log_filename)
 
         # Open with immediate writing
