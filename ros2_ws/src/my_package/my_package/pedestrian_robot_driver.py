@@ -161,18 +161,18 @@ class PedestrianRobotDriver:
                 vis_translation = self.__pedestrian_visual.getField("translation")
                 vis_pos = list(vis_translation.getSFVec3f())
 
-                print(
-                    f"Vis Position: ({vis_pos[0]:.2f}, {vis_pos[1]:.2f}, {vis_pos[2]:.2f})"
-                )
+                # print(
+                #     f"Vis Position: ({vis_pos[0]:.2f}, {vis_pos[1]:.2f}, {vis_pos[2]:.2f})"
+                # )
                 # print(
                 #     f"New Body Position: ({body_pos[0]:.2f}, {body_pos[1]:.2f}, {body_pos[2]:.2f})"
                 # )
 
                 body_rotation = self.__robot.getSelf().getField("rotation")
                 body_rotation_val = list(body_rotation.getSFRotation())
-                print(
-                    f"Body Rotation: ({body_rotation_val[0]:.2f}, {body_rotation_val[1]:.2f}, {body_rotation_val[2]:.2f})"
-                )
+                # print(
+                #     f"Body Rotation: ({body_rotation_val[0]:.2f}, {body_rotation_val[1]:.2f}, {body_rotation_val[2]:.2f})"
+                # )
                 # body has fallen, make it upright and align position to vis
                 if body_rotation_val[1] < 0:
                     vis_rot = vis_rotation.getSFRotation()
