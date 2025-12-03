@@ -21,6 +21,7 @@ def main(trajectory_path, image_path, eps=0.15, min_samples=10, start_row=3500, 
     
     # Load trajectory
     try:
+        print(f"Loading trajectory from {trajectory_path}...")
         trajectory = pd.read_csv(trajectory_path)
     except FileNotFoundError:
         print(f"Error: Trajectory file not found at {trajectory_path}")
@@ -31,6 +32,7 @@ def main(trajectory_path, image_path, eps=0.15, min_samples=10, start_row=3500, 
     # Drop first rows and sample
     trajectory_drop = trajectory.iloc[start_row::step]
 
+    # DBSCAN Clustering
     df = trajectory_drop[['x', 'y']].to_numpy()
     db = DBSCAN(eps=eps, min_samples=min_samples).fit(df)
 
@@ -73,6 +75,7 @@ def main(trajectory_path, image_path, eps=0.15, min_samples=10, start_row=3500, 
     plt.xlabel("X")
     plt.ylabel("Y")
     plt.grid(True)
+    plt.savefig(trajectory_path[:-4] + "_trajectory.png", dpi=300, bbox_inches='tight', transparent=False)
     plt.show()
 
     # ------------------------------------------
@@ -112,10 +115,12 @@ def main(trajectory_path, image_path, eps=0.15, min_samples=10, start_row=3500, 
     ax2.legend()
 
     plt.tight_layout()
+    plt.savefig(trajectory_path[:-4] + "_comparison.png", dpi=300, bbox_inches='tight', transparent=False)
     plt.show()
 
 
 if __name__ == "__main__":
+    # python find_goals.py ../trajectory/pedestrian_positions_20251124_064305.csv ../worlds/.apartment_cropped.jpg --eps 0.2 --min-samples 15 --start-row 3500 --step 10 --image-size 300 300
     parser = argparse.ArgumentParser(description="Find goals from trajectory using DBSCAN clustering")
     parser.add_argument("trajectory", help="Path to trajectory CSV file")
     parser.add_argument("image", help="Path to background image file")
