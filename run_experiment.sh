@@ -42,11 +42,16 @@ fi
 
 # Check if local_simulation_server.py exists
 if [ ! -f "$HOME/webots_shared/local_simulation_server.py" ]; then
-    echo "ERROR: local_simulation_server.py not found in $HOME/webots_shared"
-    echo "Download it with:"
-    echo "  cd $HOME/webots_shared"
-    echo "  curl -O https://raw.githubusercontent.com/cyberbotics/webots-server/master/local_simulation_server.py"
-    exit 1
+    echo "local_simulation_server.py not found. Downloading..."
+    cd "$HOME/webots_shared"
+    if curl -O https://raw.githubusercontent.com/cyberbotics/webots-server/master/local_simulation_server.py; then
+        echo "✓ Successfully downloaded local_simulation_server.py"
+    else
+        echo "ERROR: Failed to download local_simulation_server.py"
+        echo "Please check your internet connection and try again."
+        exit 1
+    fi
+    cd - > /dev/null
 fi
 
 # Set WEBOTS_HOME (adjust if needed)
@@ -65,6 +70,11 @@ SESSION_NAME="hri_experiment_${PARTICIPANT_ID}_${SCENARIO_NO}"
 
 # Kill existing session if it exists
 tmux kill-session -t "$SESSION_NAME" 2>/dev/null
+
+# Start the Docker container once before creating tmux session
+echo "Starting Docker container..."
+docker start ros2-webots-dev
+sleep 5
 
 echo "=========================================="
 echo "Starting HRI Goal Inference Experiment"
@@ -89,9 +99,7 @@ tmux send-keys -t "$SESSION_NAME:0" "python3 local_simulation_server.py" C-m
 
 # Window 1: ROS Launcher (Container)
 tmux new-window -t "$SESSION_NAME:1" -n "ros-launcher"
-tmux send-keys -t "$SESSION_NAME:1" "docker start ros2-webots-dev" C-m
-tmux send-keys -t "$SESSION_NAME:1" "sleep 2" C-m
-tmux send-keys -t "$SESSION_NAME:1" "docker exec -it ros2-webots-dev bash -c 'cd hri-goal-inference/ros2_ws && source /opt/ros/humble/setup.bash && source install/local_setup.bash && ros2 launch my_package robot_launch.py participant_id:=$PARTICIPANT_ID world:=$WORLD scenario_no:=$SCENARIO_NO'" C-m
+tmux send-keys -t "$SESSION_NAME:1" "docker exec ros2-webots-dev bash -c 'cd hri-goal-inference/ros2_ws && source /opt/ros/humble/setup.bash && source install/local_setup.bash && ros2 launch my_package robot_launch.py participant_id:=$PARTICIPANT_ID world:=$WORLD scenario_no:=$SCENARIO_NO'" C-m
 
 # Window 2: Teleop (Container)
 tmux new-window -t "$SESSION_NAME:2" -n "teleop"
