@@ -216,19 +216,46 @@ cat <log file name>
 
 # Run Clustering
 
-The command to run clustering on a trajectory, and visualize it along the webots world.
+After completing an experiment, analyze the trajectory and visualize goal clusters:
+
+```bash
+chmod +x run_clustering.sh
+./run_clustering.sh <participant_id> <world> <scenario_no> [options]
+```
+
+**Example:**
+```bash
+./run_clustering.sh p1 apartment.wbt 1
+```
+
+**With custom parameters:**
+```bash
+./run_clustering.sh p1 apartment.wbt 1 --eps 0.2 --min-samples 15 --start-row 3500 --step 10 --image-size 200 200
+```
+
+**Optional parameters:**
+- `--eps <value>`: DBSCAN epsilon parameter (default: 0.15)
+- `--min-samples <value>`: DBSCAN min_samples parameter (default: 10)
+- `--start-row <value>`: Offset to start trajectory analysis (default: 3500)
+- `--step <value>`: Sampling frequency of trajectory (default: 10)
+- `--image-size <w> <h>`: Image resizing dimensions (default: 200 200)
+
+The script will:
+- Automatically locate the log file from `$HOME/webots_server/pedestrian_logs/`
+- Use the corresponding world image from the `media/` directory
+- Run clustering analysis with your chosen parameters
+- Display visualization with detected goal clusters
+
+---
+
+## Manual Clustering Command
+
+If you prefer to run clustering manually with custom trajectory and image files:
 
 Usage:
 ```bash
 python3 notebooks/find_goals.py <trajectory path> <world PNG path> [options]
 ```
-
-Additional Options for the command:
-- --eps: DBSCAN epsilon parameter (default : 0.15)
-- --min-samples: DBSCAN min_samples parameter (defulat: 10)
-- --start-row: offset to start the trajectory analysis (defulat: 3500)
-- --step: sampling frequency of the trajectory (default: 10)
-- --image-size : image resizing dimentions width and height (default: 200 200)
 
 Basic example:
 ```bash
@@ -239,6 +266,8 @@ For example (with all options):
 ```bash
 python3 notebooks/find_goals.py trajectory/pedestrian_positions_20251124_064305.csv media/.apartment_cropped.jpg --eps 0.2 --min-samples 15 --start-row 3500 --step 10 --image-size 200 200
 ```
+
+---
 
 
 
