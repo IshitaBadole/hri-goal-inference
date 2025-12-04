@@ -214,7 +214,33 @@ View the logs
 cat <log file name>
 ```
 
-# Run GMM
+# Run Clustering
+
+The command to run clustering on a trajectory, and visualize it along the webots world.
+
+Usage:
+```bash
+python3 notebooks/find_goals.py <trajectory path> <world PNG path> [options]
+```
+
+Additional Options for the command:
+- --eps: DBSCAN epsilon parameter (default : 0.15)
+- --min-samples: DBSCAN min_samples parameter (defulat: 10)
+- --start-row: offset to start the trajectory analysis (defulat: 3500)
+- --step: sampling frequency of the trajectory (default: 10)
+- --image-size : image resizing dimentions width and height (default: 200 200)
+
+Basic example:
+```bash
+python3 notebooks/find_goals.py trajectory/pedestrian_positions_20251124_064305.csv media/.apartment_cropped.jpg
+```
+
+For example (with all options):
+```bash
+python3 notebooks/find_goals.py trajectory/pedestrian_positions_20251124_064305.csv media/.apartment_cropped.jpg --eps 0.2 --min-samples 15 --start-row 3500 --step 10 --image-size 200 200
+```
+
+
 
 # Development and debugging commands
 
