@@ -36,6 +36,21 @@ fi
 echo "✓ Docker found"
 echo ""
 
+# Check if tmux is installed, install if needed
+if ! command -v tmux &> /dev/null; then
+    echo "tmux not found. Installing tmux..."
+    if ! command -v brew &> /dev/null; then
+        echo "ERROR: Homebrew is not installed. Please install Homebrew first:"
+        echo "  /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
+        exit 1
+    fi
+    brew install tmux
+    echo "✓ tmux installed"
+else
+    echo "✓ tmux found"
+fi
+echo ""
+
 # Create required directories on Mac
 echo "Creating required directories..."
 mkdir -p "$HOME/webots_shared"
@@ -86,20 +101,23 @@ fi
 
 # Create Docker container with volume mounts
 echo "Creating Docker container 'ros2-webots-dev'..."
-docker run -it --name ros2-webots-dev \
+docker run -d --name ros2-webots-dev \
   -v "$HOME/webots_shared:/root/shared" \
   -v "$HOME/webots_server:/root/webots_server" \
   -e WEBOTS_SHARED_FOLDER="$HOME/webots_shared:/root/shared" \
-  ros2-humble-webots bash -c "
-    echo 'Container created. Cloning repository...'
+  ros2-humble-webots tail -f /dev/null
+
+echo "✓ Container created and running"
+echo ""
+
+# Clone repo and build ROS2 package inside container
+echo "Setting up ROS2 workspace inside container..."
+docker exec ros2-webots-dev bash -c "
     git clone https://github.com/IshitaBadole/hri-goal-inference.git
     cd hri-goal-inference/ros2_ws
-    echo 'Building ROS2 package...'
     colcon build
-    echo '✓ ROS2 package built successfully'
-    echo ''
-    echo 'Setup complete inside container!'
-  "
+"
+echo "✓ ROS2 package built successfully"
 
 echo ""
 echo "=========================================="
