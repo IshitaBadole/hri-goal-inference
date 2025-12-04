@@ -44,6 +44,23 @@ echo "✓ Created $HOME/webots_shared"
 echo "✓ Created $HOME/webots_server/pedestrian_logs"
 echo ""
 
+# Setup Python virtual environment
+echo "Setting up Python virtual environment..."
+if [ ! -d "venv" ]; then
+    python3 -m venv venv
+    echo "✓ Created virtual environment"
+else
+    echo "✓ Virtual environment already exists"
+fi
+
+echo "Installing Python dependencies..."
+source venv/bin/activate
+pip install --upgrade pip > /dev/null 2>&1
+pip install -r requirements.txt
+echo "✓ Python dependencies installed"
+deactivate
+echo ""
+
 # Build Docker image
 echo "Building Docker image (this may take several minutes)..."
 cd docker

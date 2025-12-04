@@ -20,6 +20,7 @@ chmod +x setup.sh
 The setup script will:
 - Verify prerequisites (Docker, Webots)
 - Create required directories (`$HOME/webots_shared`, `$HOME/webots_server`)
+- Create Python virtual environment and install dependencies
 - Build the Docker image
 - Create and configure the container
 - Clone and build the ROS2 package inside the container
@@ -82,19 +83,26 @@ If you prefer to set up manually or need to troubleshoot, follow these detailed 
 Clone this repo
 ```
 git clone https://github.com/IshitaBadole/hri-goal-inference.git
+cd hri-goal-inference
+```
+
+Create Python virtual environment and install dependencies
+```
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
 ```
 
 Build the ROS2-Humble Docker image from the Dockerfile
 ```
-cd hri-goal-inference/docker
+cd <path to repo>/hri-goal-inference/docker
 docker build -t ros2-humble-webots .
 ```
 
 Create `webots_shared` and `webots_server` directories in the root directory.
 ```
-cd $HOME
-mkdir webots_shared
-mkdir webots_server
+mkdir -p "$HOME/webots_shared"
+mkdir -p "$HOME/webots_server/pedestrian_logs"
 ```
 
 Create and run a new container `ros2-webots-dev` from the image.
