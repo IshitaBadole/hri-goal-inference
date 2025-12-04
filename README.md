@@ -59,7 +59,7 @@ Keep focus in the teleop terminal. Use the following keys to move the pedestrian
 - `X`: Stop
 - `Ctrl+C`: Quit teleop
 
-For best experience, drag the Webots window and teleop terminal side-by-side on the same screen.
+For best experience, drag the Webots window and teleop terminal side-by-side on the same screen. ![Webots window and teleop terminal window side-by-side on the screen, with focus on the teleop window](media/teleop_focus.png "Focus on teleop window")
 
 **Tmux controls:**
 - Switch windows: `Ctrl+b` then `0/1/2`
