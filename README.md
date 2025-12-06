@@ -1,5 +1,7 @@
 # hri-goal-inference
 
+A ROS2-based system for inferring robot goals through trajectory analysis and clustering in simulated indoor environments.
+
 # System Requirements
 - MacOS system
 - [Install Webots](https://cyberbotics.com/doc/guide/installation-procedure#from-the-installation-file) (R2022b recommended)
@@ -311,13 +313,6 @@ WeBots Version: R2022B
 
 World Files: https://github.com/cyberbotics/webots/tree/909a02174b1eb83373a924c263da6e33d3921f35/projects/samples/environments/indoor/worlds
 
-## AI Use Acknowledgement
+# Sample Data
 
-This project was developed with assistance from GitHub Copilot, Claude Sonnet 4.5 (Anthropic) and ChatGPT GPT5-Pro (OpenAI). AI tools were used for:
-- Code generation and debugging assistance
-- ROS2 architecture and integration guidance  
-- Docker configuration and setup
-- Documentation structure and improvement suggestions
-- Problem-solving and troubleshooting technical issues
-
-All AI-generated code was reviewed, tested, and adapted to meet project requirements. The core research direction, experimental design, and algorithmic approach remain the original work of the project team.
+A user study was conducted with six participants. Data from the study can be found in the [trajectory directory](trajectory)
