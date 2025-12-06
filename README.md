@@ -201,7 +201,7 @@ ros2 run my_package teleop
 
 Press `Ctrl+C` in Terminal 3 where teleop module is running to stop the teleop.
 
-Press `Ctrl+C` in Terminal 2 where the pedestrain driver is running to close Webots.
+Press `Ctrl+C` in Terminal 2 where the pedestrian driver is running to close Webots.
 
 Press `Ctrl+C` in Terminal 1 to stop the local simulation server.
 
@@ -235,6 +235,8 @@ chmod +x run_clustering.sh
 ```bash
 ./run_clustering.sh p1 apartment.wbt 1
 ```
+
+You can run the experiment to run clustering on your own trajectories or you can copy one of the sample trajectories from our user study from [trajectory directory](trajectory) into the `$HOME/webots_server/pedestrian_logs/` directory on your local machine and then running the clustering script with the corresponding participant id and scenario no.
 
 **With custom parameters:**
 ```bash
