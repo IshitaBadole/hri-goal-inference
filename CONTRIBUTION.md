@@ -30,7 +30,7 @@ This project was developed with assistance from GitHub Copilot, Claude Sonnet 4.
 - Code generation and debugging assistance
 - ROS2 architecture and integration guidance  
 - Docker configuration and setup
-- Documentation structure and improvement suggestions
+- Documentation and user study structure and improvement suggestions
 - Problem-solving and troubleshooting technical issues
 
 All AI-generated code was reviewed, tested, and adapted to meet project requirements. The core research direction, experimental design, and algorithmic approach remain the original work of the project team.

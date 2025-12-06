@@ -2,6 +2,10 @@
 
 A ROS2-based system for inferring robot goals through trajectory analysis and clustering in simulated indoor environments.
 
+Use this project to:
+- Have various people teleop a virtual robot in a Webots simulated world for different scenarios and log the trajectories into a csv file.
+- Run a clustering algorithm to infer goals from the recorded trajectory and visualise the world and the trajectory with goals followed in that world.
+
 # System Requirements
 - MacOS system
 - [Install Webots](https://cyberbotics.com/doc/guide/installation-procedure#from-the-installation-file) (R2022b recommended)
@@ -29,6 +33,10 @@ The setup script will:
 
 ## Running Experiments
 
+An experiment involves having a participant teleop the pedestrian in a Webots world based on your defined user study scenarios and log their trajectory into a log file. For example, an experiment could be asking a participant to perform a scenario of teleop-ing the pedestrian to the TV in the apartment world. 
+
+You can use this script to run your own Webots pedestrian teleop experiments by passing a participant id and scenario no.
+
 Once setup is complete, run an experiment with a single command:
 ```bash
 chmod +x run_experiment.sh
@@ -43,9 +51,7 @@ chmod +x run_experiment.sh
 **Available worlds:**
 - `apartment.wbt`
 - `break_room.wbt`
-- `factory.wbt`
 - `hall.wbt`
-- `my_world.wbt` (default arena with obstacles)
 
 The experiment script will:
 - Automatically start all 3 required terminals using tmux
@@ -167,9 +173,9 @@ ros2 launch my_package robot_launch.py world:=break_room.wbt participant_id:=p1 
 The available world arguments are:
 - `apartment.wbt`
 - `break_room.wbt`
-- `factory.wbt`
+- `hall.wbt`
 
-ROS2 will launch the corresponding world in WeBots and the logs will get generated for the correponding participant and scenario. Keep this terminal running.
+ROS2 will launch the corresponding world in Webots and the logs will get generated for the correponding participant and scenario. Keep this terminal running.
 
 ### Terminal 3: Run teleop script inside the container
 
@@ -195,7 +201,7 @@ ros2 run my_package teleop
 
 Press `Ctrl+C` in Terminal 3 where teleop module is running to stop the teleop.
 
-Press `Ctrl+C` in Terminal 2 where the pedestrain driver is running to close WeBots.
+Press `Ctrl+C` in Terminal 2 where the pedestrain driver is running to close Webots.
 
 Press `Ctrl+C` in Terminal 1 to stop the local simulation server.
 
@@ -248,6 +254,8 @@ The script will:
 - Run clustering analysis with your chosen parameters
 - Display visualization with detected goal clusters
 
+Here is an example of the clustering result visualisation: ![clustering result](trajectory/p7/p7_apartment_s2_comparison.png)
+
 ---
 
 ## Manual Clustering Command
@@ -271,6 +279,15 @@ python3 notebooks/find_goals.py trajectory/pedestrian_positions_20251124_064305.
 
 ---
 
+# Webots setup
+
+Webots Version: R2022B
+
+World Files: https://github.com/cyberbotics/webots/tree/909a02174b1eb83373a924c263da6e33d3921f35/projects/samples/environments/indoor/worlds
+
+# Sample Data
+
+A user study was conducted with six participants. Data from the study can be found in the [trajectory directory](trajectory)
 
 
 # Development and debugging commands
@@ -307,12 +324,3 @@ cd hri-goal-inference
 git pull origin main
 ```
 
-# WeBots setup
-
-WeBots Version: R2022B
-
-World Files: https://github.com/cyberbotics/webots/tree/909a02174b1eb83373a924c263da6e33d3921f35/projects/samples/environments/indoor/worlds
-
-# Sample Data
-
-A user study was conducted with six participants. Data from the study can be found in the [trajectory directory](trajectory)
