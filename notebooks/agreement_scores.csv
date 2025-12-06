@@ -1,0 +1,39 @@
+Participant ID,Apartment,Break Room,Factory,Order of worlds,Overall Satisfaction,Remarks
+P1,"AS2 : 6
+AH : 5","BS1 : 6 
+BH : 7","FS1 : 5
+FH : 6",F-B-A,6,"False positives (-) 
+
+Janky Controls (-)"
+P2,"AS2 : 4
+AH : 4","BS1 : 6
+BH : 4","FS2 :3
+FH : 5",B-A-F,4,"False positives (-)
+
+Goals (+)
+
+Factory : Trajectory wrong"
+P3,"AS2: 6
+AH : 7","BS1: 3
+BH : 7","FS2 : 7
+FH : 7",B-F-A,6,False positives (-)
+P4,"AS1:7 
+AH :7","BS2: 4
+BH :7","FS1:7
+FH : 5",F-A-B,6,Discontinuity (-)
+P6,"AS2: 6
+AH: 6","BS1: 7
+BH: 7","FS2: 6
+FH: 6",A-B-F,7,"Not accurate for a goal (-)
+
+Controls (-)
+
+False Positives (-)
+
+Noisy path trajectory"
+P7,"AS2 : 7
+AH : 6","BS1 : 7
+BH : 7","FS1 : 7
+FH : 7",B-F-A,6,"False Positive (-
+
+Non-intuitive"
