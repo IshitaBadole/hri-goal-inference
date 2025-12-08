@@ -39,7 +39,7 @@ def main(
         sys.exit(1)
 
     trajectory = trajectory[["x", "y"]]
-    destination_file = trajectory_path[:-4] + '_center.csv'
+    destination_file = trajectory_path[:-4] + "_center.csv"
 
     # Drop first rows and sample
     trajectory_drop = trajectory.iloc[start_row::step]
@@ -102,7 +102,7 @@ def main(
         bbox_inches="tight",
         transparent=False,
     )
-    # plt.show()
+    plt.show()
 
     # ------------------------------------------
     # Load and visualize image with trajectory
@@ -136,9 +136,8 @@ def main(
     # Plot centers
     for cid, ctr in cluster_centers.items():
         ax2.scatter(ctr[0], ctr[1], marker="x", s=200, linewidths=3, color="black")
-    
 
-    with open(destination_file, 'w') as file:
+    with open(destination_file, "w") as file:
         # Write the new line to the file, including a newline character for formatting
         file.write("x,y\n")
         for cid, ctr in cluster_centers.items():
@@ -166,7 +165,7 @@ def main(
         bbox_inches="tight",
         transparent=False,
     )
-    # plt.show()
+    plt.show()
 
 
 if __name__ == "__main__":
